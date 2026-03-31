@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>お弁当レシピ管理</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#F3F0F7; --surface:#FAF8FC; --surface2:#EDE8F4;
+  --ink:#1A1020; --ink2:#5A4570; --accent:#6B3A8F; --accent2:#C084E8;
+  --green:#3A6B45; --red:#B83A2A; --border:#D4C8E8; --shadow:rgba(60,20,90,0.09);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--ink);font-family:'Noto Sans JP',sans-serif;min-height:100vh;}
+nav{background:#2A1040;display:flex;align-items:center;padding:0 12px;height:52px;position:sticky;top:0;z-index:100;gap:2px;overflow-x:auto;}
+nav .logo{font-family:'Noto Serif JP',serif;color:var(--accent2);font-size:0.85rem;font-weight:700;margin-right:8px;white-space:nowrap;flex-shrink:0;}
+.nav-btn{background:none;border:none;color:#A09070;font-family:'Noto Sans JP',sans-serif;font-size:0.75rem;padding:6px 8px;border-radius:6px;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0;}
+.nav-btn:hover{color:#fff;background:rgba(255,255,255,0.08);}
+.nav-btn.active{color:var(--accent2);background:rgba(232,168,74,0.12);font-weight:700;}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:#666;display:inline-block;margin-left:auto;flex-shrink:0;}
+.sync-dot.ok{background:#4CAF50;}.sync-dot.err{background:var(--red);}.sync-dot.loading{background:var(--accent2);}
+.page{display:none;padding:20px 16px 60px;max-width:780px;margin:0 auto;}
+.page.active{display:block;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 2px 8px var(--shadow);}
+.card-title{font-family:'Noto Serif JP',serif;font-size:0.8rem;font-weight:700;color:var(--accent);letter-spacing:.12em;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.card-title::before{content:'';width:3px;height:14px;background:var(--accent);border-radius:2px;display:inline-block;}
+label{display:block;font-size:0.75rem;font-weight:500;color:var(--ink2);margin-bottom:5px;margin-top:12px;}
+label:first-of-type{margin-top:0;}
+input[type=text],input[type=number],input[type=password],textarea,select{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:white;font-family:'Noto Sans JP',sans-serif;font-size:16px;color:var(--ink);outline:none;transition:border-color .2s;}
+input:focus,textarea:focus,select:focus{border-color:var(--accent);}
+textarea{resize:vertical;min-height:70px;line-height:1.7;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.btn-primary{width:100%;padding:13px;background:var(--accent);color:white;border:none;border-radius:10px;font-family:'Noto Serif JP',serif;font-size:0.95rem;font-weight:700;cursor:pointer;transition:background .2s;letter-spacing:.06em;}
+.btn-primary:hover{background:#5A2A7E;}
+.btn-primary:disabled{background:#ccc;cursor:not-allowed;}
+.btn-sm{padding:6px 14px;border-radius:6px;border:1px solid var(--border);background:white;font-size:0.78rem;cursor:pointer;font-family:'Noto Sans JP',sans-serif;color:var(--ink2);transition:all .15s;}
+.btn-sm:hover{border-color:var(--accent);color:var(--accent);}
+.btn-sm.danger:hover{border-color:var(--red);color:var(--red);}
+.btn-add{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--surface2);border:1px dashed var(--border);border-radius:8px;font-size:0.82rem;cursor:pointer;color:var(--ink2);transition:all .15s;font-family:'Noto Sans JP',sans-serif;margin-top:8px;}
+.btn-add:hover{border-color:var(--accent);color:var(--accent);background:#f0e8fa;}
+.ing-row{display:grid;grid-template-columns:2fr 1fr 1.2fr auto;gap:8px;align-items:center;margin-bottom:8px;padding:10px 12px;background:white;border-radius:8px;border:1px solid var(--border);}
+.ing-name-wrap{position:relative;}
+.ing-suggestions{position:absolute;top:100%;left:0;right:0;background:white;border:1px solid var(--border);border-radius:8px;z-index:50;max-height:160px;overflow-y:auto;box-shadow:0 4px 12px var(--shadow);display:none;}
+.ing-suggestions.show{display:block;}
+.sug-item{padding:8px 12px;font-size:0.83rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--bg);transition:background .1s;}
+.sug-item:hover{background:var(--surface2);}
+.sug-item .price{color:var(--accent);font-size:0.75rem;}
+.step-row{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;padding:12px;background:white;border-radius:10px;border:1px solid var(--border);}
+.step-num{background:#2A1040;color:white;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;flex-shrink:0;margin-top:2px;}
+.step-content{flex:1;}
+.step-content textarea{min-height:52px;}
+.step-photo-area{margin-top:8px;display:flex;align-items:center;gap:8px;}
+.step-photo-preview{width:60px;height:60px;object-fit:cover;border-radius:6px;border:1px solid var(--border);display:none;}
+.step-photo-preview.show{display:block;}
+.photo-upload-btn{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:var(--surface2);border:1px dashed var(--border);border-radius:6px;font-size:0.72rem;cursor:pointer;color:var(--ink2);font-family:'Noto Sans JP',sans-serif;}
+input[type=file]{display:none;}
+.cost-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-top:12px;}
+.cost-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:4px;}
+.cost-item{text-align:center;background:white;border-radius:8px;padding:10px 8px;}
+.cost-item .val{font-family:'Noto Serif JP',serif;font-size:1.2rem;font-weight:700;color:var(--ink);}
+.cost-item .lbl{font-size:0.67rem;color:var(--ink2);margin-top:2px;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;padding:16px;}
+.modal-overlay.show{display:flex;}
+.modal{background:var(--surface);border-radius:14px;padding:24px;width:100%;max-width:380px;box-shadow:0 8px 32px rgba(0,0,0,.2);}
+.modal h3{font-family:'Noto Serif JP',serif;font-size:1rem;color:var(--accent);margin-bottom:4px;}
+.modal p{font-size:0.8rem;color:var(--ink2);margin-bottom:16px;}
+.modal-actions{display:flex;gap:8px;margin-top:16px;}
+.modal-actions button{flex:1;}
+.recipe-list{display:flex;flex-direction:column;gap:12px;}
+.recipe-card{background:white;border:1px solid var(--border);border-radius:12px;padding:16px 18px;cursor:pointer;transition:all .15s;display:flex;justify-content:space-between;align-items:flex-start;}
+.recipe-card:hover{border-color:var(--accent);box-shadow:0 2px 10px var(--shadow);}
+.rc-title{font-family:'Noto Serif JP',serif;font-size:1rem;font-weight:600;margin-bottom:4px;}
+.rc-meta{font-size:0.72rem;color:var(--ink2);display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.rc-badge{background:var(--surface2);border-radius:4px;padding:2px 7px;font-size:0.7rem;color:var(--ink2);}
+.rc-actions{display:flex;gap:6px;flex-shrink:0;}
+.rv-step{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border);}
+.rv-step:last-child{border-bottom:none;}
+.rv-num{background:var(--accent);color:white;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;flex-shrink:0;}
+.rv-text{flex:1;font-size:0.88rem;line-height:1.7;}
+.rv-step img{width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid var(--border);flex-shrink:0;}
+.db-search-row{display:flex;gap:8px;margin-bottom:12px;}
+.db-search-row input{flex:1;}
+.db-table{width:100%;border-collapse:collapse;font-size:0.82rem;}
+.db-table th{background:var(--surface2);padding:8px 12px;text-align:left;font-weight:700;font-size:0.72rem;color:var(--ink2);border-bottom:1px solid var(--border);}
+.db-table td{padding:9px 12px;border-bottom:1px solid var(--bg);vertical-align:middle;}
+.db-table tr:hover td{background:var(--surface2);}
+.empty-state{text-align:center;padding:40px;color:var(--ink2);font-size:0.85rem;}
+.tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+.tag{padding:5px 10px 5px 12px;border:1px solid var(--border);border-radius:20px;font-size:0.75rem;cursor:pointer;color:var(--ink2);background:white;transition:all .15s;display:inline-flex;align-items:center;gap:5px;}
+.tag.active{background:#EEE0FA;border-color:var(--accent2);color:var(--accent);font-weight:700;}
+.tag-del{font-size:0.7rem;color:#aaa;padding:0 2px;border-radius:50%;transition:all .15s;}
+.tag-del:hover{color:var(--red);}
+.filter-tag{padding:5px 14px;border:1px solid var(--border);border-radius:20px;font-size:0.75rem;cursor:pointer;color:var(--ink2);background:white;transition:all .15s;white-space:nowrap;}
+.filter-tag:hover{border-color:var(--accent);color:var(--accent);}
+.filter-tag.active{background:var(--accent);border-color:var(--accent);color:white;font-weight:700;}
+.season-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px;}
+.season-btn{padding:7px 4px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:0.8rem;color:var(--ink2);text-align:center;transition:all .15s;font-family:'Noto Sans JP',sans-serif;}
+.season-btn.active{background:var(--accent2);border-color:var(--accent2);color:white;font-weight:700;}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-wrap{text-align:center;padding:30px;color:var(--ink2);font-size:0.85rem;}
+@media(max-width:480px){
+  .row2{grid-template-columns:1fr;}
+  .cost-grid{grid-template-columns:1fr 1fr;}
+  .ing-row{grid-template-columns:1fr 1fr;}
+  .season-grid{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">🍱 レシピ管理</div>
+  <button class="nav-btn" id="nav-create"  onclick="showPage('create')">新規作成</button>
+  <button class="nav-btn" id="nav-recipes" onclick="showPage('recipes')">みんなのレシピ</button>
+  <button class="nav-btn" id="nav-prep"    onclick="showPage('prep')">仕込み計算</button>
+  <button class="nav-btn" id="nav-db"      onclick="showPage('db')">食材DB</button>
+  <button class="nav-btn" id="nav-admin"   onclick="showPage('admin')">管理</button>
+  <span class="sync-dot loading" id="sync-dot"></span>
+</nav>
+
+<!-- CREATE -->
+<div class="page" id="page-create">
+  <div class="card">
+    <div class="card-title">基本情報</div>
+    <label>作成者名</label>
+    <input type="text" id="author-name" placeholder="あなたの名前">
+    <label>人数分（人前）</label>
+    <input type="number" id="servings" placeholder="例：4" oninput="recalcCost()" style="max-width:160px;">
+    <label>レシピ名</label>
+    <input type="text" id="recipe-name" placeholder="例：鶏の照り焼き弁当">
+    <div class="row2">
+      <div>
+        <label>季節</label>
+        <div class="season-grid">
+          <button class="season-btn" data-val="春">🌸 春</button>
+          <button class="season-btn" data-val="夏">🌻 夏</button>
+          <button class="season-btn" data-val="秋">🍁 秋</button>
+          <button class="season-btn" data-val="冬">❄️ 冬</button>
+        </div>
+      </div>
+      <div>
+        <label>用途</label>
+        <div class="tag-row" id="tag-row"></div>
+        <div style="display:flex;gap:6px;margin-top:8px;">
+          <input type="text" id="new-tag-input" placeholder="新しい用途を追加" style="flex:1;font-size:14px;padding:6px 10px;">
+          <button class="btn-sm" onclick="addCustomTag()">追加</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">食材・原価</div>
+    <div id="ingredients-list"></div>
+    <button class="btn-add" onclick="addIngredientRow()">＋ 食材を追加</button>
+    <div class="cost-box" id="cost-box" style="display:none">
+      <div class="cost-grid" id="cost-grid"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">調理工程</div>
+    <div id="steps-list"></div>
+    <button class="btn-add" onclick="addStepRow()">＋ 工程を追加</button>
+  </div>
+  <button class="btn-primary" id="save-btn" onclick="saveRecipe()">みんなに共有する</button>
+</div>
+
+<!-- RECIPES -->
+<div class="page" id="page-recipes">
+  <div id="recipe-view-wrap" style="display:none">
+    <div class="card">
+      <button class="btn-sm" onclick="closeRecipeView()" style="margin-bottom:12px;">← 一覧に戻る</button>
+      <div id="rv-content"></div>
+    </div>
+  </div>
+  <div id="recipe-list-wrap">
+    <div class="card">
+      <div class="card-title">みんなのレシピ</div>
+      <div id="filter-tag-row" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;"></div>
+      <div id="recipe-list" class="recipe-list">
+        <div class="loading-wrap"><span class="spinner"></span>読み込み中…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PREP -->
+<div class="page" id="page-prep">
+  <div class="card">
+    <div class="card-title">仕込み計算</div>
+    <label>用途で絞り込む</label>
+    <div id="prep-filter-row" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;"></div>
+    <label>レシピを選択</label>
+    <select id="prep-recipe-select" onchange="onPrepRecipeChange()">
+      <option value="">-- レシピを選んでください --</option>
+    </select>
+    <div id="prep-base-info" style="display:none;margin-top:10px;font-size:0.8rem;color:var(--ink2);background:var(--surface2);border-radius:8px;padding:10px 14px;"></div>
+    <label>準備する人数</label>
+    <input type="number" id="prep-servings" placeholder="例：20" oninput="calcPrep()" style="max-width:160px;">
+  </div>
+  <div id="prep-result" style="display:none;">
+    <div class="card">
+      <div class="card-title">必要な分量</div>
+      <table class="db-table">
+        <thead><tr><th>食材</th><th>分量（g）</th><th>食材費</th></tr></thead>
+        <tbody id="prep-tbody"></tbody>
+      </table>
+      <div style="margin-top:14px;background:var(--surface2);border-radius:10px;padding:14px;display:flex;gap:12px;flex-wrap:wrap;">
+        <div class="cost-item" style="flex:1;"><div class="val" id="prep-total-cost">—</div><div class="lbl">総食材費</div></div>
+        <div class="cost-item" style="flex:1;"><div class="val" id="prep-per-cost">—</div><div class="lbl">1人前あたり</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DB -->
+<div class="page" id="page-db">
+  <div class="card">
+    <div class="card-title">食材データベース（共有）</div>
+    <div class="db-search-row">
+      <input type="text" id="db-search" placeholder="食材名で検索…" oninput="renderDB()">
+      <button class="btn-sm" onclick="showAddIngModal()">＋ 追加</button>
+    </div>
+    <table class="db-table">
+      <thead><tr><th>食材名</th><th>100gあたり</th><th>1gあたり</th><th>操作</th></tr></thead>
+      <tbody id="db-tbody"><tr><td colspan="4" style="text-align:center;padding:20px;"><span class="spinner"></span></td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div class="page" id="page-admin">
+  <div id="admin-lock">
+    <div class="card" style="max-width:340px;margin:40px auto;">
+      <div class="card-title">管理者ログイン</div>
+      <p style="font-size:0.8rem;color:var(--ink2);margin-bottom:14px;">この機能は管理者専用です。</p>
+      <label>パスワード</label>
+      <input type="password" id="admin-pw-input" placeholder="パスワードを入力">
+      <button class="btn-primary" style="margin-top:14px;" id="admin-login-btn">ログイン</button>
+      <div id="admin-pw-err" style="color:var(--red);font-size:0.78rem;margin-top:8px;display:none;">パスワードが違います</div>
+    </div>
+  </div>
+  <div id="admin-panel" style="display:none;">
+    <div class="card">
+      <div class="card-title">バックアップ・復元</div>
+      <p style="font-size:0.8rem;color:var(--ink2);margin-bottom:16px;line-height:1.7;">レシピと食材DBをJSONファイルとして書き出します。</p>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button class="btn-primary" id="export-btn">📥 データをエクスポート</button>
+        <div style="border-top:1px solid var(--border);padding-top:14px;margin-top:4px;">
+          <p style="font-size:0.8rem;color:var(--ink2);margin-bottom:10px;line-height:1.7;"><strong style="color:var(--red);">⚠️ 現在のデータは上書きされます。</strong></p>
+          <label for="import-file" style="margin-top:0;">
+            <div style="background:var(--surface2);border:1px dashed var(--border);border-radius:8px;padding:14px;text-align:center;cursor:pointer;font-size:0.82rem;color:var(--ink2);">
+              📂 ファイルを選択してインポート
+            </div>
+          </label>
+          <input type="file" id="import-file" accept=".json">
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">スプレッドシートから食材を取り込む</div>
+      <p style="font-size:0.8rem;color:var(--ink2);margin-bottom:12px;line-height:1.8;">
+        GoogleスプレッドシートをCSV形式でダウンロードして取り込めます。<br>
+        <strong>列の順番：</strong>食材名 / 価格 / 入り数・単位 / 1gあたり価格 / 税込価格<br>
+        ※ #DIV/0! などエラーの行は自動でスキップします。
+      </p>
+      <label for="csv-file" style="margin-top:0;">
+        <div style="background:var(--surface2);border:1px dashed var(--border);border-radius:8px;padding:14px;text-align:center;cursor:pointer;font-size:0.82rem;color:var(--ink2);">
+          📊 CSVファイルを選択して取り込む
+        </div>
+      </label>
+      <input type="file" id="csv-file" accept=".csv">
+      <div id="csv-preview" style="display:none;margin-top:14px;">
+        <div style="font-size:0.78rem;font-weight:700;color:var(--ink2);margin-bottom:8px;">取り込み内容のプレビュー（上位10件）</div>
+        <table class="db-table" id="csv-preview-table"></table>
+        <div id="csv-summary" style="font-size:0.8rem;color:var(--ink2);margin:10px 0;"></div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button class="btn-sm" id="csv-cancel-btn">キャンセル</button>
+          <button class="btn-primary" style="font-size:0.85rem;padding:10px;" id="csv-confirm-btn">この内容で登録する</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">パスワード変更</div>
+      <label>新しいパスワード</label>
+      <input type="password" id="new-pw1" placeholder="新しいパスワード">
+      <label>確認</label>
+      <input type="password" id="new-pw2" placeholder="もう一度入力">
+      <button class="btn-primary" style="margin-top:14px;" id="change-pw-btn">変更する</button>
+      <div id="pw-change-msg" style="font-size:0.78rem;margin-top:8px;display:none;"></div>
+    </div>
+    <button class="btn-sm" id="logout-btn" style="width:100%;margin-top:4px;">ログアウト</button>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-new-ing">
+  <div class="modal">
+    <h3>食材を登録</h3>
+    <p id="modal-ing-desc">全員の共有DBに食材を追加します。</p>
+    <label>食材名</label><input type="text" id="modal-ing-name">
+    <label>原価（円/100g）</label><input type="number" id="modal-ing-price" placeholder="例：180">
+    <div class="modal-actions">
+      <button class="btn-sm" id="modal-cancel-btn">キャンセル</button>
+      <button class="btn-primary" style="font-size:.85rem;padding:10px;" id="modal-save-btn">登録する</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── STATE ───────────────────────────────
+let ingDB = [];
+let ingRowCount = 0, stepCount = 0;
+let activeFilter = null;
+let prepRecipes = [];
+let prepFilter = null;
+let adminUnlocked = false;
+let csvParsed = [];
+const ADMIN_PW = 'oedo2024';
+const DEFAULT_TAGS = ['副菜赤','副菜緑','揚げ物','焼き物'];
+
+// ─── SYNC DOT ────────────────────────────
+const dot = document.getElementById('sync-dot');
+function setSyncState(s) { dot.className = 'sync-dot ' + s; }
+
+// ─── STORAGE ─────────────────────────────
+async function storageGet(key) { return await window.storage.get(key, true); }
+async function storageSet(key, val) { return await window.storage.set(key, JSON.stringify(val), true); }
+
+// ─── DB LOAD ─────────────────────────────
+async function loadSharedDB() {
+  try {
+    const res = await storageGet('ing_db');
+    ingDB = res ? JSON.parse(res.value) : getDefaultDB();
+    if (!res) await storageSet('ing_db', ingDB);
+    setSyncState('ok');
+  } catch { ingDB = getDefaultDB(); setSyncState('err'); }
+}
+
+function getDefaultDB() {
+  return [
+    {id:1,name:'鶏もも肉',unit:'g',price100:180},
+    {id:2,name:'豚バラ肉',unit:'g',price100:220},
+    {id:3,name:'牛肉',unit:'g',price100:500},
+    {id:4,name:'卵',unit:'g',price100:180},
+    {id:5,name:'米',unit:'g',price100:40},
+    {id:6,name:'ブロッコリー',unit:'g',price100:80},
+    {id:7,name:'にんじん',unit:'g',price100:50},
+    {id:8,name:'ほうれん草',unit:'g',price100:90},
+    {id:9,name:'玉ねぎ',unit:'g',price100:40},
+    {id:10,name:'じゃがいも',unit:'g',price100:50},
+    {id:11,name:'醤油',unit:'g',price100:30},
+    {id:12,name:'みりん',unit:'g',price100:50},
+    {id:13,name:'砂糖',unit:'g',price100:20},
+    {id:14,name:'サラダ油',unit:'g',price100:30},
+    {id:15,name:'塩',unit:'g',price100:10}
+  ];
+}
+
+async function loadSharedRecipes() {
+  try { const res = await storageGet('recipes'); return res ? JSON.parse(res.value) : []; }
+  catch { return []; }
+}
+async function saveSharedRecipes(r) { await storageSet('recipes', r); }
+async function loadCustomTags() {
+  try { const res = await storageGet('custom_tags'); return res ? JSON.parse(res.value) : []; }
+  catch { return []; }
+}
+async function saveCustomTags(t) { try { await storageSet('custom_tags', t); } catch {} }
+
+// ─── NAV ─────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const page = document.getElementById('page-' + id);
+  const btn  = document.getElementById('nav-' + id);
+  if (page) page.classList.add('active');
+  if (btn)  btn.classList.add('active');
+  if (id === 'recipes') renderRecipeList();
+  if (id === 'prep')    initPrepPage();
+  if (id === 'db')      renderDB();
+  if (id === 'admin')   initAdminPage();
+}
+
+// ─── TAGS ────────────────────────────────
+document.querySelectorAll('.season-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.season-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+function renderTags(customTags) {
+  const row = document.getElementById('tag-row');
+  const defHTML = DEFAULT_TAGS.map(t =>
+    '<span class="tag" data-val="' + t + '" onclick="this.classList.toggle(\'active\')">' + t + '</span>').join('');
+  const cusHTML = customTags.map(t =>
+    '<span class="tag" data-val="' + t + '" onclick="this.classList.toggle(\'active\')">' + t +
+    '<span class="tag-del" onclick="event.stopPropagation();removeTag(\'' + t + '\')">×</span></span>').join('');
+  row.innerHTML = defHTML + cusHTML;
+}
+
+async function addCustomTag() {
+  const input = document.getElementById('new-tag-input');
+  const val = input.value.trim();
+  if (!val) return;
+  const custom = await loadCustomTags();
+  if ([...DEFAULT_TAGS, ...custom].includes(val)) { input.value = ''; return; }
+  custom.push(val);
+  await saveCustomTags(custom);
+  renderTags(custom);
+  input.value = '';
+}
+
+async function removeTag(val) {
+  if (!confirm('「' + val + '」を削除しますか？')) return;
+  const custom = (await loadCustomTags()).filter(t => t !== val);
+  await saveCustomTags(custom);
+  renderTags(custom);
+}
+
+document.getElementById('new-tag-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addCustomTag();
+});
+
+// ─── INGREDIENT ROWS ─────────────────────
+function addIngredientRow(name, amount, note) {
+  name = name || ''; amount = amount || ''; note = note || '';
+  ingRowCount++;
+  const id = ingRowCount;
+  const div = document.createElement('div');
+  div.className = 'ing-row';
+  div.id = 'ing-row-' + id;
+  div.innerHTML =
+    '<div class="ing-name-wrap">' +
+      '<input type="text" placeholder="食材名" value="' + name + '" id="ing-name-' + id + '" oninput="onIngNameInput(' + id + ')" autocomplete="off">' +
+      '<div class="ing-suggestions" id="ing-sug-' + id + '"></div>' +
+    '</div>' +
+    '<input type="number" placeholder="量(g)" value="' + amount + '" id="ing-amount-' + id + '" oninput="recalcCost()">' +
+    '<input type="text" placeholder="メモ" value="' + note + '" id="ing-note-' + id + '" style="font-size:14px;">' +
+    '<button class="btn-sm danger" onclick="removeIngRow(' + id + ')">✕</button>';
+  document.getElementById('ingredients-list').appendChild(div);
+  recalcCost();
+}
+
+function removeIngRow(id) {
+  var el = document.getElementById('ing-row-' + id);
+  if (el) el.remove();
+  recalcCost();
+}
+
+function onIngNameInput(id) {
+  const val = document.getElementById('ing-name-' + id).value.trim();
+  const sug = document.getElementById('ing-sug-' + id);
+  if (!val) { sug.classList.remove('show'); return; }
+  const m = ingDB.filter(i => i.name.includes(val)).slice(0, 6);
+  if (!m.length) { sug.classList.remove('show'); return; }
+  sug.innerHTML = m.map(i =>
+    '<div class="sug-item" onclick="selectIng(' + id + ',\'' + i.name + '\')">' +
+    '<span>' + i.name + '</span><span class="price">' + (i.price100/100).toFixed(2) + '円/g</span></div>').join('');
+  sug.classList.add('show');
+}
+
+function selectIng(id, name) {
+  document.getElementById('ing-name-' + id).value = name;
+  document.getElementById('ing-note-' + id).value = 'g';
+  document.getElementById('ing-sug-' + id).classList.remove('show');
+  recalcCost();
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.ing-name-wrap'))
+    document.querySelectorAll('.ing-suggestions').forEach(s => s.classList.remove('show'));
+});
+
+// ─── COST ────────────────────────────────
+function recalcCost() {
+  const rows = document.querySelectorAll('[id^="ing-row-"]');
+  if (!rows.length) { document.getElementById('cost-box').style.display = 'none'; return; }
+  let total = 0, has = false;
+  rows.forEach(row => {
+    const rid = row.id.replace('ing-row-', '');
+    const n = document.getElementById('ing-name-' + rid) ? document.getElementById('ing-name-' + rid).value.trim() : '';
+    const a = parseFloat(document.getElementById('ing-amount-' + rid) ? document.getElementById('ing-amount-' + rid).value : 0) || 0;
+    if (!n || !a) return;
+    const item = ingDB.find(i => i.name === n);
+    if (item) { total += (item.price100 / 100) * a; has = true; }
+  });
+  const box = document.getElementById('cost-box');
+  if (!has) { box.style.display = 'none'; return; }
+  box.style.display = 'block';
+  const sv = parseFloat(document.getElementById('servings').value) || null;
+  document.getElementById('cost-grid').innerHTML =
+    '<div class="cost-item"><div class="val">' + Math.round(total) + '円</div><div class="lbl">総食材費</div></div>' +
+    '<div class="cost-item"><div class="val">' + (sv ? sv + '人前' : '—') + '</div><div class="lbl">人数分</div></div>' +
+    '<div class="cost-item"><div class="val">' + (sv ? Math.round(total/sv) + '円' : '—') + '</div><div class="lbl">1人前あたり</div></div>';
+}
+
+// ─── STEPS ───────────────────────────────
+function addStepRow(text) {
+  text = text || '';
+  stepCount++;
+  const id = stepCount;
+  const n = document.querySelectorAll('.step-row').length + 1;
+  const div = document.createElement('div');
+  div.className = 'step-row';
+  div.id = 'step-row-' + id;
+  div.innerHTML =
+    '<div class="step-num">' + n + '</div>' +
+    '<div class="step-content">' +
+      '<textarea placeholder="工程の説明" id="step-text-' + id + '">' + text + '</textarea>' +
+      '<div class="step-photo-area">' +
+        '<label class="photo-upload-btn" for="step-photo-' + id + '">📷 写真</label>' +
+        '<input type="file" accept="image/*" id="step-photo-' + id + '" onchange="previewPhoto(' + id + ')">' +
+        '<img class="step-photo-preview" id="step-img-' + id + '">' +
+      '</div>' +
+    '</div>' +
+    '<button class="btn-sm danger" onclick="removeStepRow(' + id + ')" style="margin-top:2px;">✕</button>';
+  document.getElementById('steps-list').appendChild(div);
+  renumberSteps();
+}
+
+function removeStepRow(id) {
+  var el = document.getElementById('step-row-' + id);
+  if (el) el.remove();
+  renumberSteps();
+}
+function renumberSteps() {
+  document.querySelectorAll('.step-num').forEach((el, i) => { el.textContent = i + 1; });
+}
+function previewPhoto(id) {
+  const file = document.getElementById('step-photo-' + id).files[0];
+  if (!file) return;
+  const r = new FileReader();
+  r.onload = e => {
+    const img = document.getElementById('step-img-' + id);
+    img.src = e.target.result;
+    img.classList.add('show');
+  };
+  r.readAsDataURL(file);
+}
+
+// ─── SAVE RECIPE ─────────────────────────
+async function saveRecipe() {
+  const name   = document.getElementById('recipe-name').value.trim();
+  const author = document.getElementById('author-name').value.trim() || '名無し';
+  if (!name) { alert('レシピ名を入力してください'); return; }
+  const btn = document.getElementById('save-btn');
+  btn.disabled = true; btn.textContent = '保存中…';
+  setSyncState('loading');
+  const ings = [];
+  document.querySelectorAll('[id^="ing-row-"]').forEach(row => {
+    const rid = row.id.replace('ing-row-', '');
+    const n = document.getElementById('ing-name-' + rid) ? document.getElementById('ing-name-' + rid).value.trim() : '';
+    const a = document.getElementById('ing-amount-' + rid) ? document.getElementById('ing-amount-' + rid).value : '';
+    const u = document.getElementById('ing-note-' + rid) ? document.getElementById('ing-note-' + rid).value.trim() : '';
+    if (n) ings.push({name:n, amount:a, unit:u});
+  });
+  const steps = [];
+  document.querySelectorAll('.step-row').forEach(row => {
+    const rid = row.id.replace('step-row-', '');
+    const text = document.getElementById('step-text-' + rid) ? document.getElementById('step-text-' + rid).value.trim() : '';
+    const img  = document.getElementById('step-img-' + rid);
+    const photo = (img && img.classList.contains('show')) ? img.src : null;
+    if (text) steps.push({text, photo});
+  });
+  const season = document.querySelector('.season-btn.active') ? document.querySelector('.season-btn.active').dataset.val : '';
+  const tags = Array.from(document.querySelectorAll('#tag-row .tag.active')).map(t => t.dataset.val);
+  let totalCost = 0;
+  ings.forEach(ing => {
+    const item = ingDB.find(i => i.name === ing.name);
+    if (item && ing.amount) totalCost += (item.price100 / 100) * parseFloat(ing.amount);
+  });
+  const recipe = {
+    id: Date.now(), name, author, season, tags, ingredients: ings, steps,
+    servings: parseInt(document.getElementById('servings').value) || null,
+    totalCost: Math.round(totalCost),
+    savedAt: new Date().toLocaleDateString('ja-JP')
+  };
+  try {
+    const recipes = await loadSharedRecipes();
+    recipes.unshift(recipe);
+    await saveSharedRecipes(recipes);
+    setSyncState('ok');
+    alert('「' + name + '」を全員に共有しました！');
+    resetCreate();
+  } catch {
+    setSyncState('err');
+    alert('保存に失敗しました。もう一度お試しください。');
+  }
+  btn.disabled = false; btn.textContent = 'みんなに共有する';
+}
+
+function resetCreate() {
+  document.getElementById('recipe-name').value = '';
+  document.getElementById('author-name').value = '';
+  document.getElementById('servings').value = '';
+  document.getElementById('ingredients-list').innerHTML = '';
+  document.getElementById('steps-list').innerHTML = '';
+  document.getElementById('cost-box').style.display = 'none';
+  document.querySelectorAll('.season-btn').forEach(b => b.classList.remove('active'));
+  loadCustomTags().then(renderTags);
+  ingRowCount = 0; stepCount = 0;
+  addIngredientRow(); addStepRow();
+}
+
+// ─── RECIPE LIST ─────────────────────────
+async function renderRecipeList() {
+  const el = document.getElementById('recipe-list');
+  el.innerHTML = '<div class="loading-wrap"><span class="spinner"></span>読み込み中…</div>';
+  setSyncState('loading');
+  try {
+    const recipes = await loadSharedRecipes();
+    const customTags = await loadCustomTags();
+    const allTags = DEFAULT_TAGS.concat(customTags);
+    setSyncState('ok');
+    const filterRow = document.getElementById('filter-tag-row');
+    filterRow.innerHTML =
+      '<span class="filter-tag ' + (activeFilter === null ? 'active' : '') + '" onclick="setFilter(null)">すべて</span>' +
+      allTags.map(t => '<span class="filter-tag ' + (activeFilter === t ? 'active' : '') + '" onclick="setFilter(\'' + t + '\')">' + t + '</span>').join('');
+    const filtered = activeFilter ? recipes.filter(r => (r.tags || []).includes(activeFilter)) : recipes;
+    if (!filtered.length) {
+      el.innerHTML = '<div class="empty-state">' + (activeFilter ? '「' + activeFilter + '」のレシピはありません' : 'まだレシピがありません') + '</div>';
+      return;
+    }
+    el.innerHTML = filtered.map(r =>
+      '<div class="recipe-card" onclick="viewRecipe(' + r.id + ')">' +
+        '<div>' +
+          '<div class="rc-title">' + r.name + '</div>' +
+          '<div class="rc-meta">' +
+            '<span>👤 ' + (r.author || '不明') + '</span><span>' + r.savedAt + '</span>' +
+            (r.season ? '<span class="rc-badge">' + r.season + '</span>' : '') +
+            (r.tags || []).map(t => '<span class="rc-badge">' + t + '</span>').join('') +
+            (r.totalCost ? '<span>食材費 ' + r.totalCost + '円</span>' : '') +
+          '</div>' +
+        '</div>' +
+        '<div class="rc-actions" onclick="event.stopPropagation()">' +
+          '<button class="btn-sm danger" onclick="deleteRecipe(' + r.id + ')">削除</button>' +
+        '</div>' +
+      '</div>').join('');
+  } catch {
+    setSyncState('err');
+    el.innerHTML = '<div class="empty-state">読み込みに失敗しました</div>';
+  }
+}
+
+function setFilter(val) { activeFilter = val; renderRecipeList(); }
+
+async function deleteRecipe(id) {
+  if (!confirm('このレシピを削除しますか？\n全員の画面から削除されます。')) return;
+  setSyncState('loading');
+  try {
+    const recipes = (await loadSharedRecipes()).filter(r => r.id !== id);
+    await saveSharedRecipes(recipes);
+    setSyncState('ok');
+    renderRecipeList();
+  } catch { setSyncState('err'); }
+}
+
+async function viewRecipe(id) {
+  const recipes = await loadSharedRecipes();
+  const r = recipes.find(x => x.id === id);
+  if (!r) return;
+  const sv = r.servings || null;
+  const perServing = (sv && r.totalCost) ? Math.round(r.totalCost / sv) : null;
+  let html = '<h2 style="font-family:\'Noto Serif JP\',serif;font-size:1.3rem;margin-bottom:6px;">' + r.name + '</h2>';
+  html += '<div style="font-size:.75rem;color:var(--ink2);margin-bottom:16px;">👤 ' + (r.author || '不明') + '　' + (r.season ? '🗓 ' + r.season + '　' : '') + (r.tags || []).join(' / ') + '　' + r.savedAt + '</div>';
+  if (r.totalCost) {
+    html += '<div style="background:var(--surface2);border-radius:10px;padding:14px;margin-bottom:16px;">' +
+      '<div style="font-size:.72rem;font-weight:700;color:var(--ink2);margin-bottom:10px;">原価サマリー</div>' +
+      '<div class="cost-grid">' +
+        '<div class="cost-item"><div class="val">' + r.totalCost + '円</div><div class="lbl">総食材費</div></div>' +
+        '<div class="cost-item"><div class="val">' + (sv ? sv + '人前' : '—') + '</div><div class="lbl">人数分</div></div>' +
+        '<div class="cost-item"><div class="val">' + (perServing ? perServing + '円' : '—') + '</div><div class="lbl">1人前あたり</div></div>' +
+      '</div></div>';
+  }
+  if (r.ingredients && r.ingredients.length) {
+    html += '<div style="margin-bottom:16px;"><div style="font-size:.75rem;font-weight:700;color:var(--ink2);margin-bottom:8px;">食材</div>';
+    r.ingredients.forEach(i => {
+      html += '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--bg);font-size:.85rem;"><span>' + i.name + '</span><span style="color:var(--ink2)">' + i.amount + 'g</span></div>';
+    });
+    html += '</div>';
+  }
+  if (r.steps && r.steps.length) {
+    html += '<div><div style="font-size:.75rem;font-weight:700;color:var(--ink2);margin-bottom:8px;">調理工程</div>';
+    r.steps.forEach((s, i) => {
+      html += '<div class="rv-step"><div class="rv-num">' + (i+1) + '</div><div class="rv-text">' + s.text + '</div>' + (s.photo ? '<img src="' + s.photo + '" alt="">' : '') + '</div>';
+    });
+    html += '</div>';
+  }
+  document.getElementById('rv-content').innerHTML = html;
+  document.getElementById('recipe-list-wrap').style.display = 'none';
+  document.getElementById('recipe-view-wrap').style.display = 'block';
+}
+
+function closeRecipeView() {
+  document.getElementById('recipe-view-wrap').style.display = 'none';
+  document.getElementById('recipe-list-wrap').style.display = 'block';
+}
+
+// ─── PREP ────────────────────────────────
+async function initPrepPage() {
+  prepRecipes = await loadSharedRecipes();
+  const customTags = await loadCustomTags();
+  const allTags = DEFAULT_TAGS.concat(customTags);
+  const filterRow = document.getElementById('prep-filter-row');
+  filterRow.innerHTML =
+    '<span class="filter-tag ' + (prepFilter === null ? 'active' : '') + '" onclick="setPrepFilter(null)">すべて</span>' +
+    allTags.map(t => '<span class="filter-tag ' + (prepFilter === t ? 'active' : '') + '" onclick="setPrepFilter(\'' + t + '\')">' + t + '</span>').join('');
+  updatePrepSelect();
+  document.getElementById('prep-servings').value = '';
+  document.getElementById('prep-result').style.display = 'none';
+}
+
+function setPrepFilter(val) { prepFilter = val; initPrepPage(); }
+
+function updatePrepSelect() {
+  const filtered = prepFilter ? prepRecipes.filter(r => (r.tags || []).includes(prepFilter)) : prepRecipes;
+  const sel = document.getElementById('prep-recipe-select');
+  sel.innerHTML = '<option value="">-- レシピを選んでください --</option>' +
+    filtered.map(r => '<option value="' + r.id + '">' + r.name + '</option>').join('');
+  document.getElementById('prep-base-info').style.display = 'none';
+  document.getElementById('prep-result').style.display = 'none';
+}
+
+function onPrepRecipeChange() {
+  const id = parseInt(document.getElementById('prep-recipe-select').value);
+  const recipe = prepRecipes.find(r => r.id === id);
+  const infoEl = document.getElementById('prep-base-info');
+  if (!recipe) { infoEl.style.display = 'none'; document.getElementById('prep-result').style.display = 'none'; return; }
+  infoEl.style.display = 'block';
+  infoEl.innerHTML = '基準：<strong>' + recipe.name + '</strong>　' + (recipe.servings ? recipe.servings + '人前のレシピ' : '人数未設定（1人前として計算）');
+  calcPrep();
+}
+
+function calcPrep() {
+  const id = parseInt(document.getElementById('prep-recipe-select').value);
+  const recipe = prepRecipes.find(r => r.id === id);
+  const targetServings = parseFloat(document.getElementById('prep-servings').value) || 0;
+  const resultEl = document.getElementById('prep-result');
+  if (!recipe || !targetServings) { resultEl.style.display = 'none'; return; }
+  const baseServings = recipe.servings || 1;
+  const ratio = targetServings / baseServings;
+  let totalCost = 0;
+  const rows = (recipe.ingredients || []).map(ing => {
+    const scaled = ing.amount ? Math.round(parseFloat(ing.amount) * ratio * 10) / 10 : '—';
+    const item = ingDB.find(i => i.name === ing.name);
+    const cost = (item && ing.amount) ? Math.round((item.price100 / 100) * parseFloat(ing.amount) * ratio) : null;
+    if (cost) totalCost += cost;
+    return '<tr><td><strong>' + ing.name + '</strong></td><td>' + scaled + 'g</td><td>' + (cost != null ? cost + '円' : '—') + '</td></tr>';
+  }).join('');
+  document.getElementById('prep-tbody').innerHTML = rows || '<tr><td colspan="3" style="text-align:center;color:var(--ink2);">食材が登録されていません</td></tr>';
+  document.getElementById('prep-total-cost').textContent = totalCost ? totalCost + '円' : '—';
+  document.getElementById('prep-per-cost').textContent = (totalCost && targetServings) ? Math.round(totalCost / targetServings) + '円' : '—';
+  resultEl.style.display = 'block';
+}
+
+// ─── DB ──────────────────────────────────
+async function renderDB() {
+  const q = (document.getElementById('db-search') ? document.getElementById('db-search').value.trim().toLowerCase() : '');
+  const filtered = q ? ingDB.filter(i => i.name.toLowerCase().includes(q)) : ingDB;
+  document.getElementById('db-tbody').innerHTML = filtered.length
+    ? filtered.map(i =>
+        '<tr>' +
+          '<td><strong>' + i.name + '</strong></td>' +
+          '<td id="price-cell-' + i.id + '">' + i.price100 + '円</td>' +
+          '<td>' + (i.price100/100).toFixed(2) + '円</td>' +
+          '<td style="display:flex;gap:6px;">' +
+            '<button class="btn-sm" onclick="editPrice(' + i.id + ')">編集</button>' +
+            '<button class="btn-sm danger" onclick="deleteFromDB(' + i.id + ')">削除</button>' +
+          '</td>' +
+        '</tr>').join('')
+    : '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--ink2);">見つかりません</td></tr>';
+}
+
+async function editPrice(id) {
+  const item = ingDB.find(i => i.id === id);
+  if (!item) return;
+  const cell = document.getElementById('price-cell-' + id);
+  cell.innerHTML =
+    '<div style="display:flex;gap:6px;align-items:center;">' +
+      '<input type="number" id="edit-price-' + id + '" value="' + item.price100 + '" style="width:80px;padding:4px 8px;font-size:14px;">' +
+      '<span style="font-size:0.8rem;color:var(--ink2);">円/100g</span>' +
+      '<button class="btn-sm" onclick="confirmEditPrice(' + id + ')">保存</button>' +
+      '<button class="btn-sm" onclick="renderDB()">✕</button>' +
+    '</div>';
+  document.getElementById('edit-price-' + id).focus();
+}
+
+async function confirmEditPrice(id) {
+  const el = document.getElementById('edit-price-' + id);
+  const val = parseFloat(el ? el.value : NaN);
+  if (isNaN(val) || val < 0) { alert('正しい金額を入力してください'); return; }
+  const item = ingDB.find(i => i.id === id);
+  if (!item) return;
+  item.price100 = val;
+  setSyncState('loading');
+  try { await storageSet('ing_db', ingDB); setSyncState('ok'); renderDB(); }
+  catch { setSyncState('err'); alert('保存に失敗しました'); }
+}
+
+async function deleteFromDB(id) {
+  if (!confirm('この食材を全員のDBから削除しますか？')) return;
+  setSyncState('loading');
+  ingDB = ingDB.filter(i => i.id !== id);
+  try { await storageSet('ing_db', ingDB); setSyncState('ok'); }
+  catch { setSyncState('err'); }
+  renderDB();
+}
+
+// ─── MODAL ───────────────────────────────
+function showAddIngModal(prefill) {
+  prefill = prefill || '';
+  document.getElementById('modal-ing-name').value = prefill;
+  document.getElementById('modal-ing-price').value = '';
+  document.getElementById('modal-ing-desc').textContent =
+    prefill ? '「' + prefill + '」はDBにありません。全員の共有DBに追加してください。' : '全員の共有DBに食材を追加します。';
+  document.getElementById('modal-new-ing').classList.add('show');
+}
+function closeModal() { document.getElementById('modal-new-ing').classList.remove('show'); }
+
+async function saveNewIngredient() {
+  const name = document.getElementById('modal-ing-name').value.trim();
+  const priceVal = document.getElementById('modal-ing-price').value.trim();
+  const price = parseFloat(priceVal);
+  if (!name) { alert('食材名を入力してください'); return; }
+  if (priceVal === '' || isNaN(price)) { alert('原価を入力してください'); return; }
+  if (ingDB.find(i => i.name === name)) { alert('「' + name + '」はすでに登録されています'); return; }
+  const item = {id: Date.now(), name, unit:'g', price100: price};
+  ingDB.push(item);
+  setSyncState('loading');
+  try {
+    const result = await storageSet('ing_db', ingDB);
+    if (!result) throw new Error('storage returned null');
+    setSyncState('ok');
+    closeModal();
+    renderDB();
+    recalcCost();
+    alert('「' + name + '」を登録しました');
+  } catch(e) {
+    setSyncState('err');
+    ingDB = ingDB.filter(i => i.id !== item.id);
+    alert('保存に失敗しました。\n(' + e.message + ')');
+  }
+}
+
+// ─── ADMIN ───────────────────────────────
+function checkAdminPw() {
+  const input = document.getElementById('admin-pw-input').value;
+  if (input === ADMIN_PW) {
+    adminUnlocked = true;
+    document.getElementById('admin-lock').style.display = 'none';
+    document.getElementById('admin-panel').style.display = 'block';
+    document.getElementById('admin-pw-err').style.display = 'none';
+    document.getElementById('admin-pw-input').value = '';
+  } else {
+    document.getElementById('admin-pw-err').style.display = 'block';
+  }
+}
+
+function initAdminPage() {
+  if (adminUnlocked) {
+    document.getElementById('admin-lock').style.display = 'none';
+    document.getElementById('admin-panel').style.display = 'block';
+  } else {
+    document.getElementById('admin-lock').style.display = 'block';
+    document.getElementById('admin-panel').style.display = 'none';
+    document.getElementById('admin-pw-input').value = '';
+    document.getElementById('admin-pw-err').style.display = 'none';
+  }
+}
+
+function adminLogout() { adminUnlocked = false; initAdminPage(); }
+
+function changePassword() {
+  const p1 = document.getElementById('new-pw1').value;
+  const p2 = document.getElementById('new-pw2').value;
+  const msg = document.getElementById('pw-change-msg');
+  msg.style.display = 'block';
+  msg.style.color = 'var(--ink2)';
+  msg.textContent = 'パスワード変更はAkioさんにお問い合わせください。';
+}
+
+async function exportData() {
+  setSyncState('loading');
+  try {
+    const recipes = await loadSharedRecipes();
+    const customTags = await loadCustomTags();
+    const payload = {exportedAt: new Date().toLocaleString('ja-JP'), recipes, db: ingDB, customTags};
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'oedo_backup_' + new Date().toISOString().slice(0,10) + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    setSyncState('ok');
+    alert('エクスポートしました');
+  } catch { setSyncState('err'); alert('エクスポートに失敗しました'); }
+}
+
+function importJSON(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (!confirm('現在のデータをバックアップファイルで上書きします。よろしいですか？')) { e.target.value = ''; return; }
+  const reader = new FileReader();
+  reader.onload = async ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!data.recipes || !data.db) { alert('ファイルの形式が正しくありません'); return; }
+      setSyncState('loading');
+      await storageSet('recipes', data.recipes);
+      await storageSet('ing_db', data.db);
+      if (data.customTags) await storageSet('custom_tags', data.customTags);
+      ingDB = data.db;
+      setSyncState('ok');
+      alert('復元しました\nレシピ：' + data.recipes.length + '件 / 食材：' + data.db.length + '件');
+    } catch { setSyncState('err'); alert('復元に失敗しました。ファイルを確認してください。'); }
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+// ─── CSV IMPORT ───────────────────────────
+function importCSV(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const text = ev.target.result;
+    const lines = text.split(/\r?\n/).filter(l => l.trim());
+    csvParsed = [];
+    for (let li = 0; li < lines.length; li++) {
+      const line = lines[li];
+      const cols = [];
+      let cur = '', inQ = false;
+      for (let ci = 0; ci < line.length; ci++) {
+        const ch = line[ci];
+        if (ch === '"') { inQ = !inQ; }
+        else if (ch === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+        else { cur += ch; }
+      }
+      cols.push(cur.trim());
+      const name = cols[0] ? cols[0].replace(/^"|"$/g,'').trim() : '';
+      const raw  = cols[3] ? cols[3].replace(/^"|"$/g,'').trim() : '';
+      if (!name || !raw || raw.includes('#') || raw === '') continue;
+      const pricePerG = parseFloat(raw);
+      if (isNaN(pricePerG) || pricePerG <= 0) continue;
+      csvParsed.push({name, price100: Math.round(pricePerG * 100 * 10) / 10});
+    }
+    if (!csvParsed.length) {
+      alert('取り込める食材が見つかりませんでした。\nファイルの形式と列の順番を確認してください。');
+      e.target.value = ''; return;
+    }
+    const preview = csvParsed.slice(0, 10);
+    document.getElementById('csv-preview-table').innerHTML =
+      '<thead><tr><th>食材名</th><th>100gあたり（円）</th></tr></thead>' +
+      '<tbody>' + preview.map(i => '<tr><td>' + i.name + '</td><td>' + i.price100 + '円</td></tr>').join('') + '</tbody>';
+    const existing = csvParsed.filter(i => ingDB.find(d => d.name === i.name)).length;
+    const newCount = csvParsed.length - existing;
+    document.getElementById('csv-summary').innerHTML =
+      '合計 <strong>' + csvParsed.length + '件</strong> 取り込み予定（新規追加：<strong>' + newCount + '件</strong>、上書き更新：<strong>' + existing + '件</strong>）';
+    document.getElementById('csv-preview').style.display = 'block';
+    e.target.value = '';
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function cancelCSV() {
+  csvParsed = [];
+  document.getElementById('csv-preview').style.display = 'none';
+}
+
+async function confirmCSV() {
+  if (!csvParsed.length) return;
+  setSyncState('loading');
+  try {
+    csvParsed.forEach(item => {
+      const existing = ingDB.find(i => i.name === item.name);
+      if (existing) { existing.price100 = item.price100; }
+      else { ingDB.push({id: Date.now() + Math.random(), name: item.name, unit:'g', price100: item.price100}); }
+    });
+    await storageSet('ing_db', ingDB);
+    setSyncState('ok');
+    const count = csvParsed.length;
+    csvParsed = [];
+    cancelCSV();
+    alert(count + '件の食材を登録しました');
+  } catch(e) {
+    setSyncState('err');
+    alert('登録に失敗しました：' + e.message);
+  }
+}
+
+// ─── EVENT LISTENERS ─────────────────────
+document.getElementById('admin-login-btn').addEventListener('click', checkAdminPw);
+document.getElementById('admin-pw-input').addEventListener('keydown', e => { if (e.key === 'Enter') checkAdminPw(); });
+document.getElementById('logout-btn').addEventListener('click', adminLogout);
+document.getElementById('export-btn').addEventListener('click', exportData);
+document.getElementById('import-file').addEventListener('change', importJSON);
+document.getElementById('csv-file').addEventListener('change', importCSV);
+document.getElementById('csv-cancel-btn').addEventListener('click', cancelCSV);
+document.getElementById('csv-confirm-btn').addEventListener('click', confirmCSV);
+document.getElementById('change-pw-btn').addEventListener('click', changePassword);
+document.getElementById('modal-cancel-btn').addEventListener('click', closeModal);
+document.getElementById('modal-save-btn').addEventListener('click', saveNewIngredient);
+
+// ─── INIT ────────────────────────────────
+(async () => {
+  setSyncState('loading');
+  await loadSharedDB();
+  const customTags = await loadCustomTags();
+  renderTags(customTags);
+  addIngredientRow();
+  addStepRow();
+  showPage('create');
+})();
+</script>
+</body>
+</html>
