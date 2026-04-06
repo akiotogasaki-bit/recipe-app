@@ -324,16 +324,28 @@ const DEFAULT_TAGS = ['副菜赤','副菜緑','揚げ物','焼き物'];
 const dot = document.getElementById('sync-dot');
 function setSyncState(s) { dot.className = 'sync-dot ' + s; }
 
-// ─── STORAGE ─────────────────────────────
-async function storageGet(key) { return await window.storage.get(key, true); }
-async function storageSet(key, val) { return await window.storage.set(key, JSON.stringify(val), true); }
+// ─── GAS API ─────────────────────────────
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwlHS1jmbTrlndHgdNlL3o5Rjq2HF8MoOI_xQrRxpJzM6kBR5bLRljJsgAtTnF-v1C_/exec';
+
+async function gasGet(action) {
+  const res = await fetch(GAS_URL + '?action=' + action);
+  return await res.json();
+}
+
+async function gasPost(body) {
+  const res = await fetch(GAS_URL, {
+    method: 'POST',
+    body: JSON.stringify(body)
+  });
+  return await res.json();
+}
 
 // ─── DB LOAD ─────────────────────────────
 async function loadSharedDB() {
   try {
-    const res = await storageGet('ing_db');
-    ingDB = res ? JSON.parse(res.value) : getDefaultDB();
-    if (!res) await storageSet('ing_db', ingDB);
+    const data = await gasGet('getDB');
+    ingDB = (data && data.length) ? data : getDefaultDB();
+    if (!data || !data.length) await gasPost({action:'saveDB', data: ingDB});
     setSyncState('ok');
   } catch { ingDB = getDefaultDB(); setSyncState('err'); }
 }
@@ -359,15 +371,19 @@ function getDefaultDB() {
 }
 
 async function loadSharedRecipes() {
-  try { const res = await storageGet('recipes'); return res ? JSON.parse(res.value) : []; }
+  try { return await gasGet('getRecipes') || []; }
   catch { return []; }
 }
-async function saveSharedRecipes(r) { await storageSet('recipes', r); }
+async function saveSharedRecipes(r) {
+  // 全件保存ではなく個別操作はsaveRecipe/deleteRecipeで行う
+}
 async function loadCustomTags() {
-  try { const res = await storageGet('custom_tags'); return res ? JSON.parse(res.value) : []; }
+  try { return await gasGet('getTags') || []; }
   catch { return []; }
 }
-async function saveCustomTags(t) { try { await storageSet('custom_tags', t); } catch {} }
+async function saveCustomTags(t) {
+  try { await gasPost({action:'saveTags', data: t}); } catch {}
+}
 
 // ─── NAV ─────────────────────────────────
 function showPage(id) {
@@ -579,9 +595,7 @@ async function saveRecipe() {
     savedAt: new Date().toLocaleDateString('ja-JP')
   };
   try {
-    const recipes = await loadSharedRecipes();
-    recipes.unshift(recipe);
-    await saveSharedRecipes(recipes);
+    await gasPost({action:'saveRecipe', data: recipe});
     setSyncState('ok');
     alert('「' + name + '」を全員に共有しました！');
     resetCreate();
@@ -651,8 +665,7 @@ async function deleteRecipe(id) {
   if (!confirm('このレシピを削除しますか？\n全員の画面から削除されます。')) return;
   setSyncState('loading');
   try {
-    const recipes = (await loadSharedRecipes()).filter(r => r.id !== id);
-    await saveSharedRecipes(recipes);
+    await gasPost({action:'deleteRecipe', id: id});
     setSyncState('ok');
     renderRecipeList();
   } catch { setSyncState('err'); }
@@ -796,7 +809,7 @@ async function confirmEditPrice(id) {
   if (!item) return;
   item.price100 = val;
   setSyncState('loading');
-  try { await storageSet('ing_db', ingDB); setSyncState('ok'); renderDB(); }
+  try { await gasPost({action:'saveDB', data: ingDB}); setSyncState('ok'); renderDB(); }
   catch { setSyncState('err'); alert('保存に失敗しました'); }
 }
 
@@ -831,8 +844,8 @@ async function saveNewIngredient() {
   ingDB.push(item);
   setSyncState('loading');
   try {
-    const result = await storageSet('ing_db', ingDB);
-    if (!result) throw new Error('storage returned null');
+    const result = await gasPost({action:'saveDB', data: ingDB});
+    if (!result || result.error) throw new Error(result ? result.error : 'failed');
     setSyncState('ok');
     closeModal();
     renderDB();
@@ -981,7 +994,7 @@ async function confirmCSV() {
       if (existing) { existing.price100 = item.price100; }
       else { ingDB.push({id: Date.now() + Math.random(), name: item.name, unit:'g', price100: item.price100}); }
     });
-    await storageSet('ing_db', ingDB);
+    await gasPost({action:'saveDB', data: ingDB});
     setSyncState('ok');
     const count = csvParsed.length;
     csvParsed = [];
