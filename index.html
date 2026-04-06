@@ -333,10 +333,10 @@ async function gasGet(action) {
 }
 
 async function gasPost(body) {
-  const res = await fetch(GAS_URL, {
-    method: 'POST',
-    body: JSON.stringify(body)
-  });
+  // GASはCORSの関係でno-corsで送信、レスポンスは取得できないため
+  // GETにパラメーターをつけて送信する方式に変更
+  const params = new URLSearchParams({action: body.action, payload: JSON.stringify(body)});
+  const res = await fetch(GAS_URL + '?' + params.toString());
   return await res.json();
 }
 
@@ -595,13 +595,14 @@ async function saveRecipe() {
     savedAt: new Date().toLocaleDateString('ja-JP')
   };
   try {
-    await gasPost({action:'saveRecipe', data: recipe});
+    const res = await gasPost({action:'saveRecipe', data: recipe});
+    if (res && res.error) throw new Error(res.error);
     setSyncState('ok');
     alert('「' + name + '」を全員に共有しました！');
     resetCreate();
-  } catch {
+  } catch(err) {
     setSyncState('err');
-    alert('保存に失敗しました。もう一度お試しください。');
+    alert('保存に失敗しました：' + err.message);
   }
   btn.disabled = false; btn.textContent = 'みんなに共有する';
 }
