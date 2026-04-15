@@ -285,7 +285,7 @@ input[type=file]{display:none;}
       <button class="btn-sm" onclick="showAddIngModal()">＋ 追加</button>
     </div>
     <table class="db-table">
-      <thead><tr><th>食材名</th><th>100gあたり</th><th>1gあたり</th><th>操作</th></tr></thead>
+      <thead><tr><th>食材名</th><th>納品単位</th><th>入り数</th><th>仕入れ価格</th><th>レシピ単位</th><th>単価</th><th>操作</th></tr></thead>
       <tbody id="db-tbody"><tr><td colspan="4" style="text-align:center;padding:20px;"><span class="spinner"></span></td></tr></tbody>
     </table>
   </div>
@@ -348,10 +348,30 @@ input[type=file]{display:none;}
 <!-- MODAL -->
 <div class="modal-overlay" id="modal-new-ing">
   <div class="modal">
-    <h3>食材を登録</h3>
+    <h3>食材を登録・編集</h3>
     <p id="modal-ing-desc">全員の共有DBに食材を追加します。</p>
-    <label>食材名</label><input type="text" id="modal-ing-name">
-    <label>原価（円/100g）</label><input type="number" id="modal-ing-price" placeholder="例：180">
+    <label>食材名</label>
+    <input type="text" id="modal-ing-name">
+    <div class="row2">
+      <div>
+        <label>納品単位</label>
+        <input type="text" id="modal-ing-deliv-unit" placeholder="例：2k, c/s, 本">
+      </div>
+      <div>
+        <label>入り数（g or 個数）</label>
+        <input type="number" id="modal-ing-deliv-qty" placeholder="例：2000" oninput="updateModalUnitPrice()">
+      </div>
+    </div>
+    <label>仕入れ価格（円）</label>
+    <input type="number" id="modal-ing-deliv-price" placeholder="例：1760" oninput="updateModalUnitPrice()">
+    <label>レシピでの単位</label>
+    <select id="modal-ing-recipe-unit" onchange="updateModalUnitPrice()">
+      <option value="g">g</option>
+      <option value="個">個</option>
+      <option value="本">本</option>
+      <option value="P">P</option>
+    </select>
+    <div id="modal-unit-price-preview" style="font-size:0.8rem;color:var(--accent);margin-top:6px;font-weight:700;"></div>
     <div class="modal-actions">
       <button class="btn-sm" id="modal-cancel-btn">キャンセル</button>
       <button class="btn-primary" style="font-size:.85rem;padding:10px;" id="modal-save-btn">登録する</button>
@@ -400,16 +420,19 @@ async function loadSharedDB() {
   } catch { ingDB = getDefaultDB(); setSyncState('err'); }
 }
 
+// ─── DB ──────────────────────────────────
 function getDefaultDB() {
   return [
-    {id:1,name:'鶏もも肉',unit:'g',price100:180},{id:2,name:'豚バラ肉',unit:'g',price100:220},
-    {id:3,name:'牛肉',unit:'g',price100:500},{id:4,name:'卵',unit:'g',price100:180},
-    {id:5,name:'米',unit:'g',price100:40},{id:6,name:'ブロッコリー',unit:'g',price100:80},
-    {id:7,name:'にんじん',unit:'g',price100:50},{id:8,name:'ほうれん草',unit:'g',price100:90},
-    {id:9,name:'玉ねぎ',unit:'g',price100:40},{id:10,name:'じゃがいも',unit:'g',price100:50},
-    {id:11,name:'醤油',unit:'g',price100:30},{id:12,name:'みりん',unit:'g',price100:50},
-    {id:13,name:'砂糖',unit:'g',price100:20},{id:14,name:'サラダ油',unit:'g',price100:30},
-    {id:15,name:'塩',unit:'g',price100:10}
+    {id:1,  name:'鶏もも肉',  delivUnit:'2k', delivQty:2000, delivPrice:1760, recipeUnit:'g',  unitPrice: 1760/2000},
+    {id:2,  name:'豚バラ肉',  delivUnit:'k',  delivQty:1000, delivPrice:750,  recipeUnit:'g',  unitPrice: 750/1000},
+    {id:3,  name:'牛肉',      delivUnit:'k',  delivQty:1000, delivPrice:2000, recipeUnit:'g',  unitPrice: 2},
+    {id:4,  name:'卵',        delivUnit:'c/s',delivQty:143,  delivPrice:4260, recipeUnit:'個', unitPrice: 4260/143},
+    {id:5,  name:'米',        delivUnit:'k',  delivQty:1000, delivPrice:400,  recipeUnit:'g',  unitPrice: 0.4},
+    {id:6,  name:'醤油',      delivUnit:'本', delivQty:1800, delivPrice:0,    recipeUnit:'g',  unitPrice: 0},
+    {id:7,  name:'みりん',    delivUnit:'本', delivQty:1800, delivPrice:585,  recipeUnit:'g',  unitPrice: 585/1800},
+    {id:8,  name:'砂糖',      delivUnit:'k',  delivQty:1000, delivPrice:320,  recipeUnit:'g',  unitPrice: 0.32},
+    {id:9,  name:'サラダ油',  delivUnit:'k',  delivQty:1000, delivPrice:500,  recipeUnit:'g',  unitPrice: 0.5},
+    {id:10, name:'塩',        delivUnit:'p',  delivQty:1000, delivPrice:395,  recipeUnit:'g',  unitPrice: 395/1000},
   ];
 }
 
@@ -510,7 +533,7 @@ function onIngNameInput(id) {
   if (!m.length) { sug.classList.remove('show'); return; }
   sug.innerHTML = m.map(i =>
     '<div class="sug-item" onclick="selectIng(\'' + id + '\',\'' + i.name + '\')">' +
-    '<span>' + i.name + '</span><span class="price">' + (i.price100/100).toFixed(2) + '円/g</span></div>').join('');
+    '<span>' + i.name + '</span><span class="price">' + (i.unitPrice ? i.unitPrice.toFixed(2) : '—') + '円/' + (i.recipeUnit||'g') + '</span></div>').join('');
   sug.classList.add('show');
 }
 
@@ -545,7 +568,7 @@ function recalcCost() {
     const a = parseFloat(ing.amount) || 0;
     if (!ing.name || !a) return;
     const item = ingDB.find(i => i.name === ing.name);
-    if (item) { total += (item.price100 / 100) * a; has = true; }
+    if (item) { total += (item.unitPrice || 0) * a; has = true; }
   });
   const box = document.getElementById('cost-box');
   if (!has) { box.style.display = 'none'; return; }
@@ -647,7 +670,7 @@ async function saveRecipe() {
   let totalCost = 0;
   allIngs.forEach(ing => {
     const item = ingDB.find(i => i.name === ing.name);
-    if (item && ing.amount) totalCost += (item.price100 / 100) * parseFloat(ing.amount);
+    if (item && ing.amount) totalCost += (item.unitPrice || 0) * parseFloat(ing.amount);
   });
 
   const recipe = {
@@ -938,7 +961,7 @@ function calcPrep() {
     ings.forEach(ing => {
       const scaled = ing.amount ? Math.round(parseFloat(ing.amount) * ratio * 10) / 10 : '—';
       const item = ingDB.find(i => i.name === ing.name);
-      const cost = (item && ing.amount) ? Math.round((item.price100/100)*parseFloat(ing.amount)*ratio) : null;
+      const cost = (item && ing.amount) ? Math.round((item.unitPrice||0)*parseFloat(ing.amount)*ratio) : null;
       if (cost) totalCost += cost;
       groupsHTML += '<tr><td><strong>' + ing.name + '</strong></td><td>' + scaled + 'g</td><td>' + (cost!=null?cost+'円':'—') + '</td></tr>';
     });
@@ -952,43 +975,55 @@ function calcPrep() {
 }
 
 // ─── DB PAGE ─────────────────────────────
+// 単価を再計算して保存
+function calcUnitPrice(item) {
+  if (!item.delivQty || !item.delivPrice) return 0;
+  return item.delivPrice / item.delivQty;
+}
+
 async function renderDB() {
   const q = document.getElementById('db-search') ? document.getElementById('db-search').value.trim().toLowerCase() : '';
   const filtered = q ? ingDB.filter(i => i.name.toLowerCase().includes(q)) : ingDB;
   document.getElementById('db-tbody').innerHTML = filtered.length
     ? filtered.map(i =>
-        '<tr><td><strong>' + i.name + '</strong></td>' +
-        '<td id="price-cell-' + i.id + '">' + i.price100 + '円</td>' +
-        '<td>' + (i.price100/100).toFixed(2) + '円</td>' +
+        '<tr>' +
+        '<td><strong>' + i.name + '</strong></td>' +
+        '<td>' + (i.delivUnit||'') + '</td>' +
+        '<td>' + (i.delivQty||'') + '</td>' +
+        '<td id="price-cell-' + i.id + '">' + (i.delivPrice||0) + '円</td>' +
+        '<td>' + (i.recipeUnit||'g') + '</td>' +
+        '<td>' + (i.unitPrice ? i.unitPrice.toFixed(2) : '—') + '円/' + (i.recipeUnit||'g') + '</td>' +
         '<td style="display:flex;gap:6px;">' +
-          '<button class="btn-sm" onclick="editPrice(' + i.id + ')">編集</button>' +
+          '<button class="btn-sm" onclick="editDBItem(' + i.id + ')">編集</button>' +
           '<button class="btn-sm danger" onclick="deleteFromDB(' + i.id + ')">削除</button>' +
         '</td></tr>').join('')
-    : '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--ink2);">見つかりません</td></tr>';
+    : '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--ink2);">見つかりません</td></tr>';
 }
 
-async function editPrice(id) {
+function editDBItem(id) {
   const item = ingDB.find(i => i.id === id);
   if (!item) return;
-  const cell = document.getElementById('price-cell-' + id);
-  cell.innerHTML = '<div style="display:flex;gap:6px;align-items:center;">' +
-    '<input type="number" id="edit-price-' + id + '" value="' + item.price100 + '" style="width:80px;padding:4px 8px;font-size:14px;">' +
-    '<span style="font-size:0.8rem;color:var(--ink2);">円/100g</span>' +
-    '<button class="btn-sm" onclick="confirmEditPrice(' + id + ')">保存</button>' +
-    '<button class="btn-sm" onclick="renderDB()">✕</button></div>';
-  document.getElementById('edit-price-' + id).focus();
+  document.getElementById('modal-ing-name').value    = item.name;
+  document.getElementById('modal-ing-deliv-unit').value  = item.delivUnit || '';
+  document.getElementById('modal-ing-deliv-qty').value   = item.delivQty  || '';
+  document.getElementById('modal-ing-deliv-price').value = item.delivPrice || '';
+  document.getElementById('modal-ing-recipe-unit').value = item.recipeUnit || 'g';
+  document.getElementById('modal-ing-desc').textContent  = '食材を編集します。';
+  document.getElementById('modal-new-ing').dataset.editId = id;
+  document.getElementById('modal-new-ing').classList.add('show');
+  updateModalUnitPrice();
 }
 
-async function confirmEditPrice(id) {
-  const el = document.getElementById('edit-price-' + id);
-  const val = parseFloat(el ? el.value : NaN);
-  if (isNaN(val)||val<0) { alert('正しい金額を入力してください'); return; }
-  const item = ingDB.find(i => i.id === id);
-  if (!item) return;
-  item.price100 = val;
-  setSyncState('loading');
-  try { await gasPost({action:'saveDB', data: ingDB}); setSyncState('ok'); renderDB(); }
-  catch { setSyncState('err'); alert('保存に失敗しました'); }
+function updateModalUnitPrice() {
+  const qty   = parseFloat(document.getElementById('modal-ing-deliv-qty').value)   || 0;
+  const price = parseFloat(document.getElementById('modal-ing-deliv-price').value) || 0;
+  const unit  = document.getElementById('modal-ing-recipe-unit').value;
+  const el    = document.getElementById('modal-unit-price-preview');
+  if (qty && price) {
+    el.textContent = '→ 1' + unit + 'あたり ' + (price/qty).toFixed(2) + '円';
+  } else {
+    el.textContent = '';
+  }
 }
 
 async function deleteFromDB(id) {
@@ -1004,32 +1039,53 @@ async function deleteFromDB(id) {
 function showAddIngModal(prefill) {
   prefill = prefill || '';
   document.getElementById('modal-ing-name').value = prefill;
-  document.getElementById('modal-ing-price').value = '';
+  document.getElementById('modal-ing-deliv-unit').value  = '';
+  document.getElementById('modal-ing-deliv-qty').value   = '';
+  document.getElementById('modal-ing-deliv-price').value = '';
+  document.getElementById('modal-ing-recipe-unit').value = 'g';
+  document.getElementById('modal-unit-price-preview').textContent = '';
   document.getElementById('modal-ing-desc').textContent = prefill
-    ? '「' + prefill + '」はDBにありません。全員の共有DBに追加してください。'
+    ? '「' + prefill + '」はDBにありません。追加してください。'
     : '全員の共有DBに食材を追加します。';
+  document.getElementById('modal-new-ing').dataset.editId = '';
   document.getElementById('modal-new-ing').classList.add('show');
 }
 function closeModal() { document.getElementById('modal-new-ing').classList.remove('show'); }
 
 async function saveNewIngredient() {
-  const name = document.getElementById('modal-ing-name').value.trim();
-  const priceVal = document.getElementById('modal-ing-price').value.trim();
-  const price = parseFloat(priceVal);
+  const name       = document.getElementById('modal-ing-name').value.trim();
+  const delivUnit  = document.getElementById('modal-ing-deliv-unit').value.trim();
+  const delivQty   = parseFloat(document.getElementById('modal-ing-deliv-qty').value);
+  const delivPrice = parseFloat(document.getElementById('modal-ing-deliv-price').value);
+  const recipeUnit = document.getElementById('modal-ing-recipe-unit').value;
+  const editId     = document.getElementById('modal-new-ing').dataset.editId;
+
   if (!name) { alert('食材名を入力してください'); return; }
-  if (priceVal===''||isNaN(price)) { alert('原価を入力してください'); return; }
-  if (ingDB.find(i => i.name===name)) { alert('「'+name+'」はすでに登録されています'); return; }
-  const item = {id:Date.now(), name, unit:'g', price100:price};
-  ingDB.push(item);
+  if (isNaN(delivQty) || delivQty <= 0) { alert('入り数を入力してください'); return; }
+  if (isNaN(delivPrice) || delivPrice < 0) { alert('仕入れ価格を入力してください'); return; }
+
+  const unitPrice = delivPrice / delivQty;
+
+  if (editId) {
+    // 編集モード
+    const item = ingDB.find(i => i.id === parseInt(editId));
+    if (item) {
+      item.name = name; item.delivUnit = delivUnit; item.delivQty = delivQty;
+      item.delivPrice = delivPrice; item.recipeUnit = recipeUnit; item.unitPrice = unitPrice;
+    }
+  } else {
+    if (ingDB.find(i => i.name === name)) { alert('「'+name+'」はすでに登録されています'); return; }
+    ingDB.push({id:Date.now(), name, delivUnit, delivQty, delivPrice, recipeUnit, unitPrice});
+  }
+
   setSyncState('loading');
   try {
     const result = await gasPost({action:'saveDB', data: ingDB});
-    if (!result||result.error) throw new Error(result?result.error:'failed');
+    if (!result || result.error) throw new Error(result ? result.error : 'failed');
     setSyncState('ok'); closeModal(); renderDB(); recalcCost();
-    alert('「'+name+'」を登録しました');
+    alert('「'+name+'」を保存しました');
   } catch(e) {
     setSyncState('err');
-    ingDB = ingDB.filter(i => i.id!==item.id);
     alert('保存に失敗しました。\n('+e.message+')');
   }
 }
