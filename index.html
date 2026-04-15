@@ -405,9 +405,20 @@ async function gasGet(action) {
   return await res.json();
 }
 async function gasPost(body) {
-  const params = new URLSearchParams({action: body.action, payload: JSON.stringify(body)});
-  const res = await fetch(GAS_URL + '?' + params.toString());
-  return await res.json();
+  // POSTで送信（大きいデータ対応）
+  try {
+    const res = await fetch(GAS_URL, {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: {'Content-Type': 'text/plain'}
+    });
+    return await res.json();
+  } catch(e) {
+    // フォールバック：GETで送信
+    const params = new URLSearchParams({action: body.action, payload: JSON.stringify(body)});
+    const res = await fetch(GAS_URL + '?' + params.toString());
+    return await res.json();
+  }
 }
 
 // ─── DB ──────────────────────────────────
