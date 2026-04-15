@@ -39,22 +39,43 @@ textarea{resize:vertical;min-height:70px;line-height:1.7;}
 .btn-sm.danger:hover{border-color:var(--red);color:var(--red);}
 .btn-add{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--surface2);border:1px dashed var(--border);border-radius:8px;font-size:0.82rem;cursor:pointer;color:var(--ink2);transition:all .15s;font-family:'Noto Sans JP',sans-serif;margin-top:8px;}
 .btn-add:hover{border-color:var(--accent);color:var(--accent);background:#f0e8fa;}
-.ing-row{display:grid;grid-template-columns:2fr 1fr 1.2fr auto;gap:8px;align-items:center;margin-bottom:8px;padding:10px 12px;background:white;border-radius:8px;border:1px solid var(--border);}
+
+/* 食材グループ */
+.ing-group{margin-bottom:16px;}
+.ing-group-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.ing-group-badge{background:var(--accent);color:white;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0;font-family:'Noto Serif JP',serif;}
+.ing-group-badge.b{background:#2196F3;}
+.ing-group-badge.c{background:#4CAF50;}
+.ing-group-label{font-size:0.8rem;font-weight:700;color:var(--ink2);}
+.ing-row{display:grid;grid-template-columns:2fr 1fr auto;gap:8px;align-items:center;margin-bottom:8px;padding:10px 12px;background:white;border-radius:8px;border:1px solid var(--border);}
 .ing-name-wrap{position:relative;}
 .ing-suggestions{position:absolute;top:100%;left:0;right:0;background:white;border:1px solid var(--border);border-radius:8px;z-index:50;max-height:160px;overflow-y:auto;box-shadow:0 4px 12px var(--shadow);display:none;}
 .ing-suggestions.show{display:block;}
 .sug-item{padding:8px 12px;font-size:0.83rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--bg);transition:background .1s;}
 .sug-item:hover{background:var(--surface2);}
 .sug-item .price{color:var(--accent);font-size:0.75rem;}
-.step-row{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;padding:12px;background:white;border-radius:10px;border:1px solid var(--border);}
-.step-num{background:#2A1040;color:white;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;flex-shrink:0;margin-top:2px;}
-.step-content{flex:1;}
-.step-content textarea{min-height:52px;}
+
+/* 工程 */
+.step-row{margin-bottom:12px;padding:14px;background:white;border-radius:10px;border:1px solid var(--border);}
+.step-header{display:flex;gap:10px;align-items:center;margin-bottom:10px;}
+.step-num{background:#2A1040;color:white;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;flex-shrink:0;}
+.step-header textarea{flex:1;min-height:44px;}
 .step-photo-area{margin-top:8px;display:flex;align-items:center;gap:8px;}
 .step-photo-preview{width:60px;height:60px;object-fit:cover;border-radius:6px;border:1px solid var(--border);display:none;}
 .step-photo-preview.show{display:block;}
 .photo-upload-btn{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:var(--surface2);border:1px dashed var(--border);border-radius:6px;font-size:0.72rem;cursor:pointer;color:var(--ink2);font-family:'Noto Sans JP',sans-serif;}
 input[type=file]{display:none;}
+
+/* スチコン */
+.steamer-box{background:#F0F4FF;border:1px solid #C4D0F4;border-radius:10px;padding:12px;margin-top:10px;}
+.steamer-title{font-size:0.72rem;font-weight:700;color:#3A4A8F;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.steamer-title::before{content:'♨';font-size:0.9rem;}
+.steamer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:8px;align-items:end;}
+.steamer-grid label{margin-top:0;font-size:0.7rem;color:#3A4A8F;}
+.steamer-grid input,.steamer-grid select{font-size:14px;padding:7px 10px;border-color:#C4D0F4;}
+.steamer-toggle{display:flex;align-items:center;gap:6px;margin-bottom:8px;cursor:pointer;font-size:0.78rem;color:#3A4A8F;font-weight:500;}
+.steamer-toggle input[type=checkbox]{width:auto;accent-color:var(--accent);}
+
 .cost-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-top:12px;}
 .cost-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:4px;}
 .cost-item{text-align:center;background:white;border-radius:8px;padding:10px 8px;}
@@ -74,11 +95,17 @@ input[type=file]{display:none;}
 .rc-meta{font-size:0.72rem;color:var(--ink2);display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
 .rc-badge{background:var(--surface2);border-radius:4px;padding:2px 7px;font-size:0.7rem;color:var(--ink2);}
 .rc-actions{display:flex;gap:6px;flex-shrink:0;}
-.rv-step{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border);}
+.rv-step{padding:12px 0;border-bottom:1px solid var(--border);}
 .rv-step:last-child{border-bottom:none;}
+.rv-step-header{display:flex;gap:12px;align-items:flex-start;margin-bottom:6px;}
 .rv-num{background:var(--accent);color:white;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;flex-shrink:0;}
 .rv-text{flex:1;font-size:0.88rem;line-height:1.7;}
 .rv-step img{width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid var(--border);flex-shrink:0;}
+.rv-steamer{background:#F0F4FF;border:1px solid #C4D0F4;border-radius:8px;padding:8px 12px;font-size:0.78rem;color:#3A4A8F;margin-top:6px;display:inline-flex;gap:12px;flex-wrap:wrap;}
+.rv-ing-group{margin-bottom:12px;}
+.rv-ing-group-title{font-size:0.72rem;font-weight:700;color:var(--ink2);margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.rv-ing-badge{background:var(--accent);color:white;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;flex-shrink:0;}
+.rv-ing-badge.b{background:#2196F3;}.rv-ing-badge.c{background:#4CAF50;}
 .db-search-row{display:flex;gap:8px;margin-bottom:12px;}
 .db-search-row input{flex:1;}
 .db-table{width:100%;border-collapse:collapse;font-size:0.82rem;}
@@ -100,11 +127,12 @@ input[type=file]{display:none;}
 .spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .loading-wrap{text-align:center;padding:30px;color:var(--ink2);font-size:0.85rem;}
+.edit-banner{background:#FFF3CD;border:1px solid #FFD700;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:0.82rem;color:#856404;display:none;}
+.edit-banner.show{display:block;}
 @media(max-width:480px){
   .row2{grid-template-columns:1fr;}
   .cost-grid{grid-template-columns:1fr 1fr;}
-  .ing-row{grid-template-columns:1fr 1fr;}
-  .season-grid{grid-template-columns:repeat(2,1fr);}
+  .steamer-grid{grid-template-columns:1fr 1fr;}
 }
 </style>
 </head>
@@ -122,10 +150,14 @@ input[type=file]{display:none;}
 
 <!-- CREATE -->
 <div class="page" id="page-create">
+  <div class="edit-banner" id="edit-banner">✏️ 編集モード：<span id="edit-recipe-name"></span></div>
   <div class="card">
     <div class="card-title">基本情報</div>
-    <label>作成者名</label>
-    <input type="text" id="author-name" placeholder="あなたの名前">
+    <label>作成者</label>
+    <select id="author-name">
+      <option value="戸賀崎">戸賀崎</option>
+      <option value="井上">井上</option>
+    </select>
     <label>人数分（人前）</label>
     <input type="number" id="servings" placeholder="例：4" oninput="recalcCost()" style="max-width:160px;">
     <label>レシピ名</label>
@@ -150,27 +182,60 @@ input[type=file]{display:none;}
       </div>
     </div>
   </div>
+
   <div class="card">
     <div class="card-title">食材・原価</div>
-    <div id="ingredients-list"></div>
-    <button class="btn-add" onclick="addIngredientRow()">＋ 食材を追加</button>
+    <!-- グループA -->
+    <div class="ing-group">
+      <div class="ing-group-header">
+        <div class="ing-group-badge">A</div>
+        <div class="ing-group-label">グループA</div>
+      </div>
+      <div id="ing-list-a"></div>
+      <button class="btn-add" onclick="addIngredientRow('a')">＋ 食材を追加</button>
+    </div>
+    <!-- グループB -->
+    <div class="ing-group">
+      <div class="ing-group-header">
+        <div class="ing-group-badge b">B</div>
+        <div class="ing-group-label">グループB</div>
+      </div>
+      <div id="ing-list-b"></div>
+      <button class="btn-add" onclick="addIngredientRow('b')">＋ 食材を追加</button>
+    </div>
+    <!-- グループC -->
+    <div class="ing-group">
+      <div class="ing-group-header">
+        <div class="ing-group-badge c">C</div>
+        <div class="ing-group-label">グループC</div>
+      </div>
+      <div id="ing-list-c"></div>
+      <button class="btn-add" onclick="addIngredientRow('c')">＋ 食材を追加</button>
+    </div>
+
     <div class="cost-box" id="cost-box" style="display:none">
       <div class="cost-grid" id="cost-grid"></div>
     </div>
   </div>
+
   <div class="card">
     <div class="card-title">調理工程</div>
     <div id="steps-list"></div>
     <button class="btn-add" onclick="addStepRow()">＋ 工程を追加</button>
   </div>
+
   <button class="btn-primary" id="save-btn" onclick="saveRecipe()">みんなに共有する</button>
+  <button class="btn-sm" id="cancel-edit-btn" style="width:100%;margin-top:8px;display:none;" onclick="cancelEdit()">編集をキャンセル</button>
 </div>
 
 <!-- RECIPES -->
 <div class="page" id="page-recipes">
   <div id="recipe-view-wrap" style="display:none">
     <div class="card">
-      <button class="btn-sm" onclick="closeRecipeView()" style="margin-bottom:12px;">← 一覧に戻る</button>
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <button class="btn-sm" onclick="closeRecipeView()">← 一覧に戻る</button>
+        <button class="btn-sm" id="edit-recipe-btn" onclick="editCurrentRecipe()">✏️ 編集</button>
+      </div>
       <div id="rv-content"></div>
     </div>
   </div>
@@ -202,10 +267,7 @@ input[type=file]{display:none;}
   <div id="prep-result" style="display:none;">
     <div class="card">
       <div class="card-title">必要な分量</div>
-      <table class="db-table">
-        <thead><tr><th>食材</th><th>分量（g）</th><th>食材費</th></tr></thead>
-        <tbody id="prep-tbody"></tbody>
-      </table>
+      <div id="prep-groups"></div>
       <div style="margin-top:14px;background:var(--surface2);border-radius:10px;padding:14px;display:flex;gap:12px;flex-wrap:wrap;">
         <div class="cost-item" style="flex:1;"><div class="val" id="prep-total-cost">—</div><div class="lbl">総食材費</div></div>
         <div class="cost-item" style="flex:1;"><div class="val" id="prep-per-cost">—</div><div class="lbl">1人前あたり</div></div>
@@ -244,15 +306,12 @@ input[type=file]{display:none;}
   <div id="admin-panel" style="display:none;">
     <div class="card">
       <div class="card-title">バックアップ・復元</div>
-      <p style="font-size:0.8rem;color:var(--ink2);margin-bottom:16px;line-height:1.7;">レシピと食材DBをJSONファイルとして書き出します。</p>
       <div style="display:flex;flex-direction:column;gap:10px;">
         <button class="btn-primary" id="export-btn">📥 データをエクスポート</button>
         <div style="border-top:1px solid var(--border);padding-top:14px;margin-top:4px;">
-          <p style="font-size:0.8rem;color:var(--ink2);margin-bottom:10px;line-height:1.7;"><strong style="color:var(--red);">⚠️ 現在のデータは上書きされます。</strong></p>
+          <p style="font-size:0.8rem;color:var(--ink2);margin-bottom:10px;"><strong style="color:var(--red);">⚠️ 現在のデータは上書きされます。</strong></p>
           <label for="import-file" style="margin-top:0;">
-            <div style="background:var(--surface2);border:1px dashed var(--border);border-radius:8px;padding:14px;text-align:center;cursor:pointer;font-size:0.82rem;color:var(--ink2);">
-              📂 ファイルを選択してインポート
-            </div>
+            <div style="background:var(--surface2);border:1px dashed var(--border);border-radius:8px;padding:14px;text-align:center;cursor:pointer;font-size:0.82rem;color:var(--ink2);">📂 ファイルを選択してインポート</div>
           </label>
           <input type="file" id="import-file" accept=".json">
         </div>
@@ -260,19 +319,13 @@ input[type=file]{display:none;}
     </div>
     <div class="card">
       <div class="card-title">スプレッドシートから食材を取り込む</div>
-      <p style="font-size:0.8rem;color:var(--ink2);margin-bottom:12px;line-height:1.8;">
-        GoogleスプレッドシートをCSV形式でダウンロードして取り込めます。<br>
-        <strong>列の順番：</strong>食材名 / 価格 / 入り数・単位 / 1gあたり価格 / 税込価格<br>
-        ※ #DIV/0! などエラーの行は自動でスキップします。
-      </p>
+      <p style="font-size:0.8rem;color:var(--ink2);margin-bottom:12px;line-height:1.8;">列の順番：食材名 / 価格 / 入り数・単位 / 1gあたり価格 / 税込価格<br>※ #DIV/0! などエラー行は自動スキップします。</p>
       <label for="csv-file" style="margin-top:0;">
-        <div style="background:var(--surface2);border:1px dashed var(--border);border-radius:8px;padding:14px;text-align:center;cursor:pointer;font-size:0.82rem;color:var(--ink2);">
-          📊 CSVファイルを選択して取り込む
-        </div>
+        <div style="background:var(--surface2);border:1px dashed var(--border);border-radius:8px;padding:14px;text-align:center;cursor:pointer;font-size:0.82rem;color:var(--ink2);">📊 CSVファイルを選択して取り込む</div>
       </label>
       <input type="file" id="csv-file" accept=".csv">
       <div id="csv-preview" style="display:none;margin-top:14px;">
-        <div style="font-size:0.78rem;font-weight:700;color:var(--ink2);margin-bottom:8px;">取り込み内容のプレビュー（上位10件）</div>
+        <div style="font-size:0.78rem;font-weight:700;color:var(--ink2);margin-bottom:8px;">プレビュー（上位10件）</div>
         <table class="db-table" id="csv-preview-table"></table>
         <div id="csv-summary" style="font-size:0.8rem;color:var(--ink2);margin:10px 0;"></div>
         <div style="display:flex;gap:8px;margin-top:8px;">
@@ -283,10 +336,8 @@ input[type=file]{display:none;}
     </div>
     <div class="card">
       <div class="card-title">パスワード変更</div>
-      <label>新しいパスワード</label>
-      <input type="password" id="new-pw1" placeholder="新しいパスワード">
-      <label>確認</label>
-      <input type="password" id="new-pw2" placeholder="もう一度入力">
+      <label>新しいパスワード</label><input type="password" id="new-pw1" placeholder="新しいパスワード">
+      <label>確認</label><input type="password" id="new-pw2" placeholder="もう一度入力">
       <button class="btn-primary" style="margin-top:14px;" id="change-pw-btn">変更する</button>
       <div id="pw-change-msg" style="font-size:0.78rem;margin-top:8px;display:none;"></div>
     </div>
@@ -311,36 +362,35 @@ input[type=file]{display:none;}
 <script>
 // ─── STATE ───────────────────────────────
 let ingDB = [];
-let ingRowCount = 0, stepCount = 0;
+let ingRowCounts = {a:0, b:0, c:0};
+let stepCount = 0;
 let activeFilter = null;
 let prepRecipes = [];
 let prepFilter = null;
 let adminUnlocked = false;
 let csvParsed = [];
+let editingRecipeId = null;
+let currentViewRecipe = null;
 const ADMIN_PW = 'oedo2024';
 const DEFAULT_TAGS = ['副菜赤','副菜緑','揚げ物','焼き物'];
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwlHS1jmbTrlndHgdNlL3o5Rjq2HF8MoOI_xQrRxpJzM6kBR5bLRljJsgAtTnF-v1C_/exec';
 
-// ─── SYNC DOT ────────────────────────────
+// ─── SYNC ────────────────────────────────
 const dot = document.getElementById('sync-dot');
 function setSyncState(s) { dot.className = 'sync-dot ' + s; }
 
 // ─── GAS API ─────────────────────────────
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbwlHS1jmbTrlndHgdNlL3o5Rjq2HF8MoOI_xQrRxpJzM6kBR5bLRljJsgAtTnF-v1C_/exec';
-
 async function gasGet(action) {
   const res = await fetch(GAS_URL + '?action=' + action);
   return await res.json();
 }
-
 async function gasPost(body) {
-  // GASはCORSの関係でno-corsで送信、レスポンスは取得できないため
-  // GETにパラメーターをつけて送信する方式に変更
   const params = new URLSearchParams({action: body.action, payload: JSON.stringify(body)});
   const res = await fetch(GAS_URL + '?' + params.toString());
   return await res.json();
 }
 
-// ─── DB LOAD ─────────────────────────────
+// ─── DB ──────────────────────────────────
 async function loadSharedDB() {
   try {
     const data = await gasGet('getDB');
@@ -352,38 +402,24 @@ async function loadSharedDB() {
 
 function getDefaultDB() {
   return [
-    {id:1,name:'鶏もも肉',unit:'g',price100:180},
-    {id:2,name:'豚バラ肉',unit:'g',price100:220},
-    {id:3,name:'牛肉',unit:'g',price100:500},
-    {id:4,name:'卵',unit:'g',price100:180},
-    {id:5,name:'米',unit:'g',price100:40},
-    {id:6,name:'ブロッコリー',unit:'g',price100:80},
-    {id:7,name:'にんじん',unit:'g',price100:50},
-    {id:8,name:'ほうれん草',unit:'g',price100:90},
-    {id:9,name:'玉ねぎ',unit:'g',price100:40},
-    {id:10,name:'じゃがいも',unit:'g',price100:50},
-    {id:11,name:'醤油',unit:'g',price100:30},
-    {id:12,name:'みりん',unit:'g',price100:50},
-    {id:13,name:'砂糖',unit:'g',price100:20},
-    {id:14,name:'サラダ油',unit:'g',price100:30},
+    {id:1,name:'鶏もも肉',unit:'g',price100:180},{id:2,name:'豚バラ肉',unit:'g',price100:220},
+    {id:3,name:'牛肉',unit:'g',price100:500},{id:4,name:'卵',unit:'g',price100:180},
+    {id:5,name:'米',unit:'g',price100:40},{id:6,name:'ブロッコリー',unit:'g',price100:80},
+    {id:7,name:'にんじん',unit:'g',price100:50},{id:8,name:'ほうれん草',unit:'g',price100:90},
+    {id:9,name:'玉ねぎ',unit:'g',price100:40},{id:10,name:'じゃがいも',unit:'g',price100:50},
+    {id:11,name:'醤油',unit:'g',price100:30},{id:12,name:'みりん',unit:'g',price100:50},
+    {id:13,name:'砂糖',unit:'g',price100:20},{id:14,name:'サラダ油',unit:'g',price100:30},
     {id:15,name:'塩',unit:'g',price100:10}
   ];
 }
 
 async function loadSharedRecipes() {
-  try { return await gasGet('getRecipes') || []; }
-  catch { return []; }
-}
-async function saveSharedRecipes(r) {
-  // 全件保存ではなく個別操作はsaveRecipe/deleteRecipeで行う
+  try { return await gasGet('getRecipes') || []; } catch { return []; }
 }
 async function loadCustomTags() {
-  try { return await gasGet('getTags') || []; }
-  catch { return []; }
+  try { return await gasGet('getTags') || []; } catch { return []; }
 }
-async function saveCustomTags(t) {
-  try { await gasPost({action:'saveTags', data: t}); } catch {}
-}
+async function saveCustomTags(t) { try { await gasPost({action:'saveTags', data: t}); } catch {} }
 
 // ─── NAV ─────────────────────────────────
 function showPage(id) {
@@ -441,22 +477,22 @@ document.getElementById('new-tag-input').addEventListener('keydown', e => {
 });
 
 // ─── INGREDIENT ROWS ─────────────────────
-function addIngredientRow(name, amount, note) {
+function addIngredientRow(group, name, amount, note) {
+  group = group || 'a';
   name = name || ''; amount = amount || ''; note = note || '';
-  ingRowCount++;
-  const id = ingRowCount;
+  ingRowCounts[group]++;
+  const id = group + '_' + ingRowCounts[group];
   const div = document.createElement('div');
   div.className = 'ing-row';
   div.id = 'ing-row-' + id;
   div.innerHTML =
     '<div class="ing-name-wrap">' +
-      '<input type="text" placeholder="食材名" value="' + name + '" id="ing-name-' + id + '" oninput="onIngNameInput(' + id + ')" autocomplete="off">' +
+      '<input type="text" placeholder="食材名" value="' + name + '" id="ing-name-' + id + '" oninput="onIngNameInput(\'' + id + '\')" autocomplete="off">' +
       '<div class="ing-suggestions" id="ing-sug-' + id + '"></div>' +
     '</div>' +
     '<input type="number" placeholder="量(g)" value="' + amount + '" id="ing-amount-' + id + '" oninput="recalcCost()">' +
-    '<input type="text" placeholder="メモ" value="' + note + '" id="ing-note-' + id + '" style="font-size:14px;">' +
-    '<button class="btn-sm danger" onclick="removeIngRow(' + id + ')">✕</button>';
-  document.getElementById('ingredients-list').appendChild(div);
+    '<button class="btn-sm danger" onclick="removeIngRow(\'' + id + '\')">✕</button>';
+  document.getElementById('ing-list-' + group).appendChild(div);
   recalcCost();
 }
 
@@ -473,14 +509,13 @@ function onIngNameInput(id) {
   const m = ingDB.filter(i => i.name.includes(val)).slice(0, 6);
   if (!m.length) { sug.classList.remove('show'); return; }
   sug.innerHTML = m.map(i =>
-    '<div class="sug-item" onclick="selectIng(' + id + ',\'' + i.name + '\')">' +
+    '<div class="sug-item" onclick="selectIng(\'' + id + '\',\'' + i.name + '\')">' +
     '<span>' + i.name + '</span><span class="price">' + (i.price100/100).toFixed(2) + '円/g</span></div>').join('');
   sug.classList.add('show');
 }
 
 function selectIng(id, name) {
   document.getElementById('ing-name-' + id).value = name;
-  document.getElementById('ing-note-' + id).value = 'g';
   document.getElementById('ing-sug-' + id).classList.remove('show');
   recalcCost();
 }
@@ -490,17 +525,26 @@ document.addEventListener('click', e => {
     document.querySelectorAll('.ing-suggestions').forEach(s => s.classList.remove('show'));
 });
 
+function getIngredientsForGroup(group) {
+  const ings = [];
+  document.querySelectorAll('#ing-list-' + group + ' .ing-row').forEach(row => {
+    const id = row.id.replace('ing-row-', '');
+    const n = document.getElementById('ing-name-' + id) ? document.getElementById('ing-name-' + id).value.trim() : '';
+    const a = document.getElementById('ing-amount-' + id) ? document.getElementById('ing-amount-' + id).value : '';
+    if (n) ings.push({name:n, amount:a, group:group});
+  });
+  return ings;
+}
+
 // ─── COST ────────────────────────────────
 function recalcCost() {
-  const rows = document.querySelectorAll('[id^="ing-row-"]');
-  if (!rows.length) { document.getElementById('cost-box').style.display = 'none'; return; }
+  const allIngs = [...getIngredientsForGroup('a'), ...getIngredientsForGroup('b'), ...getIngredientsForGroup('c')];
+  if (!allIngs.length) { document.getElementById('cost-box').style.display = 'none'; return; }
   let total = 0, has = false;
-  rows.forEach(row => {
-    const rid = row.id.replace('ing-row-', '');
-    const n = document.getElementById('ing-name-' + rid) ? document.getElementById('ing-name-' + rid).value.trim() : '';
-    const a = parseFloat(document.getElementById('ing-amount-' + rid) ? document.getElementById('ing-amount-' + rid).value : 0) || 0;
-    if (!n || !a) return;
-    const item = ingDB.find(i => i.name === n);
+  allIngs.forEach(ing => {
+    const a = parseFloat(ing.amount) || 0;
+    if (!ing.name || !a) return;
+    const item = ingDB.find(i => i.name === ing.name);
     if (item) { total += (item.price100 / 100) * a; has = true; }
   });
   const box = document.getElementById('cost-box');
@@ -514,25 +558,41 @@ function recalcCost() {
 }
 
 // ─── STEPS ───────────────────────────────
-function addStepRow(text) {
-  text = text || '';
+function addStepRow(text, steamer) {
+  text = text || ''; steamer = steamer || null;
   stepCount++;
   const id = stepCount;
   const n = document.querySelectorAll('.step-row').length + 1;
   const div = document.createElement('div');
   div.className = 'step-row';
   div.id = 'step-row-' + id;
+  const hasS = steamer && (steamer.mode || steamer.temp || steamer.time);
   div.innerHTML =
-    '<div class="step-num">' + n + '</div>' +
-    '<div class="step-content">' +
+    '<div class="step-header">' +
+      '<div class="step-num">' + n + '</div>' +
       '<textarea placeholder="工程の説明" id="step-text-' + id + '">' + text + '</textarea>' +
-      '<div class="step-photo-area">' +
-        '<label class="photo-upload-btn" for="step-photo-' + id + '">📷 写真</label>' +
-        '<input type="file" accept="image/*" id="step-photo-' + id + '" onchange="previewPhoto(' + id + ')">' +
-        '<img class="step-photo-preview" id="step-img-' + id + '">' +
-      '</div>' +
+      '<button class="btn-sm danger" onclick="removeStepRow(' + id + ')" style="flex-shrink:0;">✕</button>' +
     '</div>' +
-    '<button class="btn-sm danger" onclick="removeStepRow(' + id + ')" style="margin-top:2px;">✕</button>';
+    '<div class="step-photo-area">' +
+      '<label class="photo-upload-btn" for="step-photo-' + id + '">📷 写真</label>' +
+      '<input type="file" accept="image/*" id="step-photo-' + id + '" onchange="previewPhoto(' + id + ')">' +
+      '<img class="step-photo-preview" id="step-img-' + id + '">' +
+    '</div>' +
+    '<div class="steamer-box">' +
+      '<div class="steamer-title">スチコン設定</div>' +
+      '<div class="steamer-grid">' +
+        '<div><label>モード</label>' +
+          '<select id="steamer-mode-' + id + '">' +
+            '<option value="">なし</option>' +
+            '<option value="スチーム"' + (steamer && steamer.mode==='スチーム'?' selected':'') + '>スチーム</option>' +
+            '<option value="コンビ"' + (steamer && steamer.mode==='コンビ'?' selected':'') + '>コンビ</option>' +
+            '<option value="ホット"' + (steamer && steamer.mode==='ホット'?' selected':'') + '>ホット</option>' +
+          '</select>' +
+        '</div>' +
+        '<div><label>温度（℃）</label><input type="number" id="steamer-temp-' + id + '" placeholder="例：180" value="' + (steamer&&steamer.temp?steamer.temp:'') + '"></div>' +
+        '<div><label>時間（分）</label><input type="number" id="steamer-time-' + id + '" placeholder="例：15" value="' + (steamer&&steamer.time?steamer.time:'') + '"></div>' +
+      '</div>' +
+    '</div>';
   document.getElementById('steps-list').appendChild(div);
   renumberSteps();
 }
@@ -551,73 +611,91 @@ function previewPhoto(id) {
   const r = new FileReader();
   r.onload = e => {
     const img = document.getElementById('step-img-' + id);
-    img.src = e.target.result;
-    img.classList.add('show');
+    img.src = e.target.result; img.classList.add('show');
   };
   r.readAsDataURL(file);
 }
 
-// ─── SAVE RECIPE ─────────────────────────
+// ─── SAVE / EDIT RECIPE ──────────────────
 async function saveRecipe() {
   const name   = document.getElementById('recipe-name').value.trim();
-  const author = document.getElementById('author-name').value.trim() || '名無し';
+  const author = document.getElementById('author-name').value;
   if (!name) { alert('レシピ名を入力してください'); return; }
   const btn = document.getElementById('save-btn');
-  btn.disabled = true; btn.textContent = '保存中…';
+  btn.disabled = true;
+  btn.textContent = editingRecipeId ? '更新中…' : '保存中…';
   setSyncState('loading');
-  const ings = [];
-  document.querySelectorAll('[id^="ing-row-"]').forEach(row => {
-    const rid = row.id.replace('ing-row-', '');
-    const n = document.getElementById('ing-name-' + rid) ? document.getElementById('ing-name-' + rid).value.trim() : '';
-    const a = document.getElementById('ing-amount-' + rid) ? document.getElementById('ing-amount-' + rid).value : '';
-    const u = document.getElementById('ing-note-' + rid) ? document.getElementById('ing-note-' + rid).value.trim() : '';
-    if (n) ings.push({name:n, amount:a, unit:u});
-  });
+
+  const allIngs = [...getIngredientsForGroup('a'), ...getIngredientsForGroup('b'), ...getIngredientsForGroup('c')];
   const steps = [];
   document.querySelectorAll('.step-row').forEach(row => {
     const rid = row.id.replace('step-row-', '');
     const text = document.getElementById('step-text-' + rid) ? document.getElementById('step-text-' + rid).value.trim() : '';
     const img  = document.getElementById('step-img-' + rid);
     const photo = (img && img.classList.contains('show')) ? img.src : null;
-    if (text) steps.push({text, photo});
+    const mode = document.getElementById('steamer-mode-' + rid) ? document.getElementById('steamer-mode-' + rid).value : '';
+    const temp = document.getElementById('steamer-temp-' + rid) ? document.getElementById('steamer-temp-' + rid).value : '';
+    const time = document.getElementById('steamer-time-' + rid) ? document.getElementById('steamer-time-' + rid).value : '';
+    const steamer = (mode || temp || time) ? {mode, temp, time} : null;
+    if (text) steps.push({text, photo, steamer});
   });
+
   const season = document.querySelector('.season-btn.active') ? document.querySelector('.season-btn.active').dataset.val : '';
   const tags = Array.from(document.querySelectorAll('#tag-row .tag.active')).map(t => t.dataset.val);
   let totalCost = 0;
-  ings.forEach(ing => {
+  allIngs.forEach(ing => {
     const item = ingDB.find(i => i.name === ing.name);
     if (item && ing.amount) totalCost += (item.price100 / 100) * parseFloat(ing.amount);
   });
+
   const recipe = {
-    id: Date.now(), name, author, season, tags, ingredients: ings, steps,
+    id: editingRecipeId || Date.now(),
+    name, author, season, tags,
+    ingredients: allIngs, steps,
     servings: parseInt(document.getElementById('servings').value) || null,
     totalCost: Math.round(totalCost),
     savedAt: new Date().toLocaleDateString('ja-JP')
   };
+
   try {
+    if (editingRecipeId) {
+      // 既存を削除して新しいものを保存（上書き）
+      await gasPost({action:'deleteRecipe', id: editingRecipeId});
+    }
     const res = await gasPost({action:'saveRecipe', data: recipe});
     if (res && res.error) throw new Error(res.error);
     setSyncState('ok');
-    alert('「' + name + '」を全員に共有しました！');
-    resetCreate();
+    alert(editingRecipeId ? '「' + name + '」を更新しました！' : '「' + name + '」を全員に共有しました！');
+    cancelEdit();
   } catch(err) {
     setSyncState('err');
     alert('保存に失敗しました：' + err.message);
   }
-  btn.disabled = false; btn.textContent = 'みんなに共有する';
+  btn.disabled = false;
+  btn.textContent = editingRecipeId ? 'レシピを更新する' : 'みんなに共有する';
+}
+
+function cancelEdit() {
+  editingRecipeId = null;
+  document.getElementById('edit-banner').classList.remove('show');
+  document.getElementById('save-btn').textContent = 'みんなに共有する';
+  document.getElementById('cancel-edit-btn').style.display = 'none';
+  resetCreate();
 }
 
 function resetCreate() {
   document.getElementById('recipe-name').value = '';
-  document.getElementById('author-name').value = '';
   document.getElementById('servings').value = '';
-  document.getElementById('ingredients-list').innerHTML = '';
+  ['a','b','c'].forEach(g => {
+    document.getElementById('ing-list-' + g).innerHTML = '';
+    ingRowCounts[g] = 0;
+  });
   document.getElementById('steps-list').innerHTML = '';
   document.getElementById('cost-box').style.display = 'none';
   document.querySelectorAll('.season-btn').forEach(b => b.classList.remove('active'));
   loadCustomTags().then(renderTags);
-  ingRowCount = 0; stepCount = 0;
-  addIngredientRow(); addStepRow();
+  stepCount = 0;
+  addIngredientRow('a'); addStepRow();
 }
 
 // ─── RECIPE LIST ─────────────────────────
@@ -676,41 +754,131 @@ async function viewRecipe(id) {
   const recipes = await loadSharedRecipes();
   const r = recipes.find(x => x.id === id);
   if (!r) return;
+  currentViewRecipe = r;
   const sv = r.servings || null;
   const perServing = (sv && r.totalCost) ? Math.round(r.totalCost / sv) : null;
+
   let html = '<h2 style="font-family:\'Noto Serif JP\',serif;font-size:1.3rem;margin-bottom:6px;">' + r.name + '</h2>';
-  html += '<div style="font-size:.75rem;color:var(--ink2);margin-bottom:16px;">👤 ' + (r.author || '不明') + '　' + (r.season ? '🗓 ' + r.season + '　' : '') + (r.tags || []).join(' / ') + '　' + r.savedAt + '</div>';
+  html += '<div style="font-size:.75rem;color:var(--ink2);margin-bottom:16px;">👤 ' + (r.author||'不明') + '　' + (r.season?'🗓 '+r.season+'　':'') + (r.tags||[]).join(' / ') + '　' + r.savedAt + '</div>';
+
   if (r.totalCost) {
     html += '<div style="background:var(--surface2);border-radius:10px;padding:14px;margin-bottom:16px;">' +
       '<div style="font-size:.72rem;font-weight:700;color:var(--ink2);margin-bottom:10px;">原価サマリー</div>' +
       '<div class="cost-grid">' +
         '<div class="cost-item"><div class="val">' + r.totalCost + '円</div><div class="lbl">総食材費</div></div>' +
-        '<div class="cost-item"><div class="val">' + (sv ? sv + '人前' : '—') + '</div><div class="lbl">人数分</div></div>' +
-        '<div class="cost-item"><div class="val">' + (perServing ? perServing + '円' : '—') + '</div><div class="lbl">1人前あたり</div></div>' +
+        '<div class="cost-item"><div class="val">' + (sv?sv+'人前':'—') + '</div><div class="lbl">人数分</div></div>' +
+        '<div class="cost-item"><div class="val">' + (perServing?perServing+'円':'—') + '</div><div class="lbl">1人前あたり</div></div>' +
       '</div></div>';
   }
-  if (r.ingredients && r.ingredients.length) {
-    html += '<div style="margin-bottom:16px;"><div style="font-size:.75rem;font-weight:700;color:var(--ink2);margin-bottom:8px;">食材</div>';
-    r.ingredients.forEach(i => {
-      html += '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--bg);font-size:.85rem;"><span>' + i.name + '</span><span style="color:var(--ink2)">' + i.amount + 'g</span></div>';
-    });
+
+  // 食材（グループ別）
+  const groups = [{key:'a',label:'グループA',cls:''},{key:'b',label:'グループB',cls:'b'},{key:'c',label:'グループC',cls:'c'}];
+  const hasGroups = (r.ingredients||[]).some(i => i.group);
+  if ((r.ingredients||[]).length) {
+    html += '<div style="margin-bottom:16px;">';
+    if (hasGroups) {
+      groups.forEach(g => {
+        const ings = (r.ingredients||[]).filter(i => i.group === g.key);
+        if (!ings.length) return;
+        html += '<div class="rv-ing-group">' +
+          '<div class="rv-ing-group-title"><div class="rv-ing-badge ' + g.cls + '">' + g.key.toUpperCase() + '</div>' + g.label + '</div>';
+        ings.forEach(i => {
+          html += '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--bg);font-size:.85rem;"><span>' + i.name + '</span><span style="color:var(--ink2)">' + i.amount + 'g</span></div>';
+        });
+        html += '</div>';
+      });
+    } else {
+      (r.ingredients||[]).forEach(i => {
+        html += '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--bg);font-size:.85rem;"><span>' + i.name + '</span><span style="color:var(--ink2)">' + i.amount + 'g</span></div>';
+      });
+    }
     html += '</div>';
   }
-  if (r.steps && r.steps.length) {
+
+  if ((r.steps||[]).length) {
     html += '<div><div style="font-size:.75rem;font-weight:700;color:var(--ink2);margin-bottom:8px;">調理工程</div>';
     r.steps.forEach((s, i) => {
-      html += '<div class="rv-step"><div class="rv-num">' + (i+1) + '</div><div class="rv-text">' + s.text + '</div>' + (s.photo ? '<img src="' + s.photo + '" alt="">' : '') + '</div>';
+      html += '<div class="rv-step">' +
+        '<div class="rv-step-header">' +
+          '<div class="rv-num">' + (i+1) + '</div>' +
+          '<div class="rv-text">' + s.text + '</div>' +
+          (s.photo ? '<img src="' + s.photo + '" alt="">' : '') +
+        '</div>';
+      if (s.steamer && (s.steamer.mode || s.steamer.temp || s.steamer.time)) {
+        html += '<div class="rv-steamer">' +
+          (s.steamer.mode ? '<span>♨ ' + s.steamer.mode + '</span>' : '') +
+          (s.steamer.temp ? '<span>🌡 ' + s.steamer.temp + '℃</span>' : '') +
+          (s.steamer.time ? '<span>⏱ ' + s.steamer.time + '分</span>' : '') +
+          '</div>';
+      }
+      html += '</div>';
     });
     html += '</div>';
   }
+
   document.getElementById('rv-content').innerHTML = html;
   document.getElementById('recipe-list-wrap').style.display = 'none';
   document.getElementById('recipe-view-wrap').style.display = 'block';
 }
 
 function closeRecipeView() {
+  currentViewRecipe = null;
   document.getElementById('recipe-view-wrap').style.display = 'none';
   document.getElementById('recipe-list-wrap').style.display = 'block';
+}
+
+// ─── EDIT RECIPE ─────────────────────────
+function editCurrentRecipe() {
+  const r = currentViewRecipe;
+  if (!r) return;
+  editingRecipeId = r.id;
+
+  // フォームに値をセット
+  document.getElementById('recipe-name').value = r.name || '';
+  document.getElementById('author-name').value = r.author || '戸賀崎';
+  document.getElementById('servings').value = r.servings || '';
+
+  // 季節
+  document.querySelectorAll('.season-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.val === r.season);
+  });
+
+  // タグ
+  loadCustomTags().then(customTags => {
+    renderTags(customTags);
+    setTimeout(() => {
+      document.querySelectorAll('#tag-row .tag').forEach(t => {
+        t.classList.toggle('active', (r.tags||[]).includes(t.dataset.val));
+      });
+    }, 100);
+  });
+
+  // 食材クリア
+  ['a','b','c'].forEach(g => {
+    document.getElementById('ing-list-' + g).innerHTML = '';
+    ingRowCounts[g] = 0;
+  });
+  (r.ingredients||[]).forEach(ing => {
+    const g = ing.group || 'a';
+    addIngredientRow(g, ing.name, ing.amount, '');
+  });
+
+  // 工程クリア
+  document.getElementById('steps-list').innerHTML = '';
+  stepCount = 0;
+  (r.steps||[]).forEach(s => addStepRow(s.text, s.steamer));
+  if (!r.steps || !r.steps.length) addStepRow();
+
+  recalcCost();
+
+  // バナー表示
+  document.getElementById('edit-recipe-name').textContent = r.name;
+  document.getElementById('edit-banner').classList.add('show');
+  document.getElementById('save-btn').textContent = 'レシピを更新する';
+  document.getElementById('cancel-edit-btn').style.display = 'block';
+
+  closeRecipeView();
+  showPage('create');
 }
 
 // ─── PREP ────────────────────────────────
@@ -720,8 +888,8 @@ async function initPrepPage() {
   const allTags = DEFAULT_TAGS.concat(customTags);
   const filterRow = document.getElementById('prep-filter-row');
   filterRow.innerHTML =
-    '<span class="filter-tag ' + (prepFilter === null ? 'active' : '') + '" onclick="setPrepFilter(null)">すべて</span>' +
-    allTags.map(t => '<span class="filter-tag ' + (prepFilter === t ? 'active' : '') + '" onclick="setPrepFilter(\'' + t + '\')">' + t + '</span>').join('');
+    '<span class="filter-tag ' + (prepFilter===null?'active':'') + '" onclick="setPrepFilter(null)">すべて</span>' +
+    allTags.map(t => '<span class="filter-tag ' + (prepFilter===t?'active':'') + '" onclick="setPrepFilter(\'' + t + '\')">' + t + '</span>').join('');
   updatePrepSelect();
   document.getElementById('prep-servings').value = '';
   document.getElementById('prep-result').style.display = 'none';
@@ -730,7 +898,7 @@ async function initPrepPage() {
 function setPrepFilter(val) { prepFilter = val; initPrepPage(); }
 
 function updatePrepSelect() {
-  const filtered = prepFilter ? prepRecipes.filter(r => (r.tags || []).includes(prepFilter)) : prepRecipes;
+  const filtered = prepFilter ? prepRecipes.filter(r => (r.tags||[]).includes(prepFilter)) : prepRecipes;
   const sel = document.getElementById('prep-recipe-select');
   sel.innerHTML = '<option value="">-- レシピを選んでください --</option>' +
     filtered.map(r => '<option value="' + r.id + '">' + r.name + '</option>').join('');
@@ -742,9 +910,9 @@ function onPrepRecipeChange() {
   const id = parseInt(document.getElementById('prep-recipe-select').value);
   const recipe = prepRecipes.find(r => r.id === id);
   const infoEl = document.getElementById('prep-base-info');
-  if (!recipe) { infoEl.style.display = 'none'; document.getElementById('prep-result').style.display = 'none'; return; }
+  if (!recipe) { infoEl.style.display='none'; document.getElementById('prep-result').style.display='none'; return; }
   infoEl.style.display = 'block';
-  infoEl.innerHTML = '基準：<strong>' + recipe.name + '</strong>　' + (recipe.servings ? recipe.servings + '人前のレシピ' : '人数未設定（1人前として計算）');
+  infoEl.innerHTML = '基準：<strong>' + recipe.name + '</strong>　' + (recipe.servings ? recipe.servings+'人前' : '人数未設定（1人前として計算）');
   calcPrep();
 }
 
@@ -753,38 +921,46 @@ function calcPrep() {
   const recipe = prepRecipes.find(r => r.id === id);
   const targetServings = parseFloat(document.getElementById('prep-servings').value) || 0;
   const resultEl = document.getElementById('prep-result');
-  if (!recipe || !targetServings) { resultEl.style.display = 'none'; return; }
-  const baseServings = recipe.servings || 1;
-  const ratio = targetServings / baseServings;
+  if (!recipe || !targetServings) { resultEl.style.display='none'; return; }
+  const ratio = targetServings / (recipe.servings || 1);
   let totalCost = 0;
-  const rows = (recipe.ingredients || []).map(ing => {
-    const scaled = ing.amount ? Math.round(parseFloat(ing.amount) * ratio * 10) / 10 : '—';
-    const item = ingDB.find(i => i.name === ing.name);
-    const cost = (item && ing.amount) ? Math.round((item.price100 / 100) * parseFloat(ing.amount) * ratio) : null;
-    if (cost) totalCost += cost;
-    return '<tr><td><strong>' + ing.name + '</strong></td><td>' + scaled + 'g</td><td>' + (cost != null ? cost + '円' : '—') + '</td></tr>';
-  }).join('');
-  document.getElementById('prep-tbody').innerHTML = rows || '<tr><td colspan="3" style="text-align:center;color:var(--ink2);">食材が登録されていません</td></tr>';
-  document.getElementById('prep-total-cost').textContent = totalCost ? totalCost + '円' : '—';
-  document.getElementById('prep-per-cost').textContent = (totalCost && targetServings) ? Math.round(totalCost / targetServings) + '円' : '—';
+
+  const groups = [{key:'a',label:'グループA',cls:''},{key:'b',label:'グループB',cls:'b'},{key:'c',label:'グループC',cls:'c'}];
+  let groupsHTML = '';
+  groups.forEach(g => {
+    const ings = (recipe.ingredients||[]).filter(i => (i.group||'a') === g.key);
+    if (!ings.length) return;
+    groupsHTML += '<div class="rv-ing-group"><div class="rv-ing-group-title"><div class="rv-ing-badge ' + g.cls + '">' + g.key.toUpperCase() + '</div>' + g.label + '</div>';
+    groupsHTML += '<table class="db-table"><thead><tr><th>食材</th><th>分量（g）</th><th>食材費</th></tr></thead><tbody>';
+    ings.forEach(ing => {
+      const scaled = ing.amount ? Math.round(parseFloat(ing.amount) * ratio * 10) / 10 : '—';
+      const item = ingDB.find(i => i.name === ing.name);
+      const cost = (item && ing.amount) ? Math.round((item.price100/100)*parseFloat(ing.amount)*ratio) : null;
+      if (cost) totalCost += cost;
+      groupsHTML += '<tr><td><strong>' + ing.name + '</strong></td><td>' + scaled + 'g</td><td>' + (cost!=null?cost+'円':'—') + '</td></tr>';
+    });
+    groupsHTML += '</tbody></table></div>';
+  });
+
+  document.getElementById('prep-groups').innerHTML = groupsHTML;
+  document.getElementById('prep-total-cost').textContent = totalCost ? totalCost+'円' : '—';
+  document.getElementById('prep-per-cost').textContent = (totalCost&&targetServings) ? Math.round(totalCost/targetServings)+'円' : '—';
   resultEl.style.display = 'block';
 }
 
-// ─── DB ──────────────────────────────────
+// ─── DB PAGE ─────────────────────────────
 async function renderDB() {
-  const q = (document.getElementById('db-search') ? document.getElementById('db-search').value.trim().toLowerCase() : '');
+  const q = document.getElementById('db-search') ? document.getElementById('db-search').value.trim().toLowerCase() : '';
   const filtered = q ? ingDB.filter(i => i.name.toLowerCase().includes(q)) : ingDB;
   document.getElementById('db-tbody').innerHTML = filtered.length
     ? filtered.map(i =>
-        '<tr>' +
-          '<td><strong>' + i.name + '</strong></td>' +
-          '<td id="price-cell-' + i.id + '">' + i.price100 + '円</td>' +
-          '<td>' + (i.price100/100).toFixed(2) + '円</td>' +
-          '<td style="display:flex;gap:6px;">' +
-            '<button class="btn-sm" onclick="editPrice(' + i.id + ')">編集</button>' +
-            '<button class="btn-sm danger" onclick="deleteFromDB(' + i.id + ')">削除</button>' +
-          '</td>' +
-        '</tr>').join('')
+        '<tr><td><strong>' + i.name + '</strong></td>' +
+        '<td id="price-cell-' + i.id + '">' + i.price100 + '円</td>' +
+        '<td>' + (i.price100/100).toFixed(2) + '円</td>' +
+        '<td style="display:flex;gap:6px;">' +
+          '<button class="btn-sm" onclick="editPrice(' + i.id + ')">編集</button>' +
+          '<button class="btn-sm danger" onclick="deleteFromDB(' + i.id + ')">削除</button>' +
+        '</td></tr>').join('')
     : '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--ink2);">見つかりません</td></tr>';
 }
 
@@ -792,20 +968,18 @@ async function editPrice(id) {
   const item = ingDB.find(i => i.id === id);
   if (!item) return;
   const cell = document.getElementById('price-cell-' + id);
-  cell.innerHTML =
-    '<div style="display:flex;gap:6px;align-items:center;">' +
-      '<input type="number" id="edit-price-' + id + '" value="' + item.price100 + '" style="width:80px;padding:4px 8px;font-size:14px;">' +
-      '<span style="font-size:0.8rem;color:var(--ink2);">円/100g</span>' +
-      '<button class="btn-sm" onclick="confirmEditPrice(' + id + ')">保存</button>' +
-      '<button class="btn-sm" onclick="renderDB()">✕</button>' +
-    '</div>';
+  cell.innerHTML = '<div style="display:flex;gap:6px;align-items:center;">' +
+    '<input type="number" id="edit-price-' + id + '" value="' + item.price100 + '" style="width:80px;padding:4px 8px;font-size:14px;">' +
+    '<span style="font-size:0.8rem;color:var(--ink2);">円/100g</span>' +
+    '<button class="btn-sm" onclick="confirmEditPrice(' + id + ')">保存</button>' +
+    '<button class="btn-sm" onclick="renderDB()">✕</button></div>';
   document.getElementById('edit-price-' + id).focus();
 }
 
 async function confirmEditPrice(id) {
   const el = document.getElementById('edit-price-' + id);
   const val = parseFloat(el ? el.value : NaN);
-  if (isNaN(val) || val < 0) { alert('正しい金額を入力してください'); return; }
+  if (isNaN(val)||val<0) { alert('正しい金額を入力してください'); return; }
   const item = ingDB.find(i => i.id === id);
   if (!item) return;
   item.price100 = val;
@@ -818,7 +992,7 @@ async function deleteFromDB(id) {
   if (!confirm('この食材を全員のDBから削除しますか？')) return;
   setSyncState('loading');
   ingDB = ingDB.filter(i => i.id !== id);
-  try { await storageSet('ing_db', ingDB); setSyncState('ok'); }
+  try { await gasPost({action:'saveDB', data: ingDB}); setSyncState('ok'); }
   catch { setSyncState('err'); }
   renderDB();
 }
@@ -828,8 +1002,9 @@ function showAddIngModal(prefill) {
   prefill = prefill || '';
   document.getElementById('modal-ing-name').value = prefill;
   document.getElementById('modal-ing-price').value = '';
-  document.getElementById('modal-ing-desc').textContent =
-    prefill ? '「' + prefill + '」はDBにありません。全員の共有DBに追加してください。' : '全員の共有DBに食材を追加します。';
+  document.getElementById('modal-ing-desc').textContent = prefill
+    ? '「' + prefill + '」はDBにありません。全員の共有DBに追加してください。'
+    : '全員の共有DBに食材を追加します。';
   document.getElementById('modal-new-ing').classList.add('show');
 }
 function closeModal() { document.getElementById('modal-new-ing').classList.remove('show'); }
@@ -839,23 +1014,20 @@ async function saveNewIngredient() {
   const priceVal = document.getElementById('modal-ing-price').value.trim();
   const price = parseFloat(priceVal);
   if (!name) { alert('食材名を入力してください'); return; }
-  if (priceVal === '' || isNaN(price)) { alert('原価を入力してください'); return; }
-  if (ingDB.find(i => i.name === name)) { alert('「' + name + '」はすでに登録されています'); return; }
-  const item = {id: Date.now(), name, unit:'g', price100: price};
+  if (priceVal===''||isNaN(price)) { alert('原価を入力してください'); return; }
+  if (ingDB.find(i => i.name===name)) { alert('「'+name+'」はすでに登録されています'); return; }
+  const item = {id:Date.now(), name, unit:'g', price100:price};
   ingDB.push(item);
   setSyncState('loading');
   try {
     const result = await gasPost({action:'saveDB', data: ingDB});
-    if (!result || result.error) throw new Error(result ? result.error : 'failed');
-    setSyncState('ok');
-    closeModal();
-    renderDB();
-    recalcCost();
-    alert('「' + name + '」を登録しました');
+    if (!result||result.error) throw new Error(result?result.error:'failed');
+    setSyncState('ok'); closeModal(); renderDB(); recalcCost();
+    alert('「'+name+'」を登録しました');
   } catch(e) {
     setSyncState('err');
-    ingDB = ingDB.filter(i => i.id !== item.id);
-    alert('保存に失敗しました。\n(' + e.message + ')');
+    ingDB = ingDB.filter(i => i.id!==item.id);
+    alert('保存に失敗しました。\n('+e.message+')');
   }
 }
 
@@ -886,14 +1058,10 @@ function initAdminPage() {
 }
 
 function adminLogout() { adminUnlocked = false; initAdminPage(); }
-
 function changePassword() {
-  const p1 = document.getElementById('new-pw1').value;
-  const p2 = document.getElementById('new-pw2').value;
   const msg = document.getElementById('pw-change-msg');
-  msg.style.display = 'block';
-  msg.style.color = 'var(--ink2)';
-  msg.textContent = 'パスワード変更はAkioさんにお問い合わせください。';
+  msg.style.display='block'; msg.style.color='var(--ink2)';
+  msg.textContent='パスワード変更はAkioさんにお問い合わせください。';
 }
 
 async function exportData() {
@@ -901,115 +1069,95 @@ async function exportData() {
   try {
     const recipes = await loadSharedRecipes();
     const customTags = await loadCustomTags();
-    const payload = {exportedAt: new Date().toLocaleString('ja-JP'), recipes, db: ingDB, customTags};
-    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+    const payload = {exportedAt:new Date().toLocaleString('ja-JP'), recipes, db:ingDB, customTags};
+    const blob = new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = 'oedo_backup_' + new Date().toISOString().slice(0,10) + '.json';
-    a.click();
-    URL.revokeObjectURL(url);
-    setSyncState('ok');
-    alert('エクスポートしました');
+    a.href=url; a.download='oedo_backup_'+new Date().toISOString().slice(0,10)+'.json';
+    a.click(); URL.revokeObjectURL(url);
+    setSyncState('ok'); alert('エクスポートしました');
   } catch { setSyncState('err'); alert('エクスポートに失敗しました'); }
 }
 
 function importJSON(e) {
   const file = e.target.files[0];
   if (!file) return;
-  if (!confirm('現在のデータをバックアップファイルで上書きします。よろしいですか？')) { e.target.value = ''; return; }
+  if (!confirm('現在のデータをバックアップファイルで上書きします。よろしいですか？')) { e.target.value=''; return; }
   const reader = new FileReader();
   reader.onload = async ev => {
     try {
       const data = JSON.parse(ev.target.result);
-      if (!data.recipes || !data.db) { alert('ファイルの形式が正しくありません'); return; }
+      if (!data.recipes||!data.db) { alert('ファイルの形式が正しくありません'); return; }
       setSyncState('loading');
-      await storageSet('recipes', data.recipes);
-      await storageSet('ing_db', data.db);
-      if (data.customTags) await storageSet('custom_tags', data.customTags);
-      ingDB = data.db;
-      setSyncState('ok');
-      alert('復元しました\nレシピ：' + data.recipes.length + '件 / 食材：' + data.db.length + '件');
-    } catch { setSyncState('err'); alert('復元に失敗しました。ファイルを確認してください。'); }
-    e.target.value = '';
+      for (const r of data.recipes) await gasPost({action:'saveRecipe', data:r});
+      await gasPost({action:'saveDB', data:data.db});
+      if (data.customTags) await gasPost({action:'saveTags', data:data.customTags});
+      ingDB = data.db; setSyncState('ok');
+      alert('復元しました\nレシピ：'+data.recipes.length+'件 / 食材：'+data.db.length+'件');
+    } catch { setSyncState('err'); alert('復元に失敗しました。'); }
+    e.target.value='';
   };
   reader.readAsText(file);
 }
 
-// ─── CSV IMPORT ───────────────────────────
 function importCSV(e) {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = ev => {
-    const text = ev.target.result;
-    const lines = text.split(/\r?\n/).filter(l => l.trim());
+    const lines = ev.target.result.split(/\r?\n/).filter(l=>l.trim());
     csvParsed = [];
-    for (let li = 0; li < lines.length; li++) {
-      const line = lines[li];
-      const cols = [];
-      let cur = '', inQ = false;
-      for (let ci = 0; ci < line.length; ci++) {
-        const ch = line[ci];
-        if (ch === '"') { inQ = !inQ; }
-        else if (ch === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
-        else { cur += ch; }
+    for (const line of lines) {
+      const cols=[]; let cur='',inQ=false;
+      for (let ci=0;ci<line.length;ci++) {
+        const ch=line[ci];
+        if(ch==='"'){inQ=!inQ;}
+        else if(ch===','&&!inQ){cols.push(cur.trim());cur='';}
+        else{cur+=ch;}
       }
       cols.push(cur.trim());
-      const name = cols[0] ? cols[0].replace(/^"|"$/g,'').trim() : '';
-      const raw  = cols[3] ? cols[3].replace(/^"|"$/g,'').trim() : '';
-      if (!name || !raw || raw.includes('#') || raw === '') continue;
-      const pricePerG = parseFloat(raw);
-      if (isNaN(pricePerG) || pricePerG <= 0) continue;
-      csvParsed.push({name, price100: Math.round(pricePerG * 100 * 10) / 10});
+      const name=cols[0]?cols[0].replace(/^"|"$/g,'').trim():'';
+      const raw=cols[3]?cols[3].replace(/^"|"$/g,'').trim():'';
+      if(!name||!raw||raw.includes('#')) continue;
+      const p=parseFloat(raw);
+      if(isNaN(p)||p<=0) continue;
+      csvParsed.push({name, price100:Math.round(p*100*10)/10});
     }
-    if (!csvParsed.length) {
-      alert('取り込める食材が見つかりませんでした。\nファイルの形式と列の順番を確認してください。');
-      e.target.value = ''; return;
-    }
-    const preview = csvParsed.slice(0, 10);
-    document.getElementById('csv-preview-table').innerHTML =
+    if(!csvParsed.length){alert('取り込める食材が見つかりませんでした。');e.target.value='';return;}
+    const preview=csvParsed.slice(0,10);
+    document.getElementById('csv-preview-table').innerHTML=
       '<thead><tr><th>食材名</th><th>100gあたり（円）</th></tr></thead>' +
-      '<tbody>' + preview.map(i => '<tr><td>' + i.name + '</td><td>' + i.price100 + '円</td></tr>').join('') + '</tbody>';
-    const existing = csvParsed.filter(i => ingDB.find(d => d.name === i.name)).length;
-    const newCount = csvParsed.length - existing;
-    document.getElementById('csv-summary').innerHTML =
-      '合計 <strong>' + csvParsed.length + '件</strong> 取り込み予定（新規追加：<strong>' + newCount + '件</strong>、上書き更新：<strong>' + existing + '件</strong>）';
-    document.getElementById('csv-preview').style.display = 'block';
-    e.target.value = '';
+      '<tbody>'+preview.map(i=>'<tr><td>'+i.name+'</td><td>'+i.price100+'円</td></tr>').join('')+'</tbody>';
+    const existing=csvParsed.filter(i=>ingDB.find(d=>d.name===i.name)).length;
+    document.getElementById('csv-summary').innerHTML=
+      '合計 <strong>'+csvParsed.length+'件</strong>（新規：<strong>'+(csvParsed.length-existing)+'件</strong>、更新：<strong>'+existing+'件</strong>）';
+    document.getElementById('csv-preview').style.display='block';
+    e.target.value='';
   };
-  reader.readAsText(file, 'UTF-8');
+  reader.readAsText(file,'UTF-8');
 }
 
-function cancelCSV() {
-  csvParsed = [];
-  document.getElementById('csv-preview').style.display = 'none';
-}
+function cancelCSV(){csvParsed=[];document.getElementById('csv-preview').style.display='none';}
 
-async function confirmCSV() {
-  if (!csvParsed.length) return;
+async function confirmCSV(){
+  if(!csvParsed.length) return;
   setSyncState('loading');
   try {
-    csvParsed.forEach(item => {
-      const existing = ingDB.find(i => i.name === item.name);
-      if (existing) { existing.price100 = item.price100; }
-      else { ingDB.push({id: Date.now() + Math.random(), name: item.name, unit:'g', price100: item.price100}); }
+    csvParsed.forEach(item=>{
+      const ex=ingDB.find(i=>i.name===item.name);
+      if(ex){ex.price100=item.price100;}
+      else{ingDB.push({id:Date.now()+Math.random(),name:item.name,unit:'g',price100:item.price100});}
     });
-    await gasPost({action:'saveDB', data: ingDB});
+    await gasPost({action:'saveDB',data:ingDB});
     setSyncState('ok');
-    const count = csvParsed.length;
-    csvParsed = [];
-    cancelCSV();
-    alert(count + '件の食材を登録しました');
-  } catch(e) {
-    setSyncState('err');
-    alert('登録に失敗しました：' + e.message);
-  }
+    const count=csvParsed.length; csvParsed=[]; cancelCSV();
+    alert(count+'件の食材を登録しました');
+  } catch(e){setSyncState('err');alert('登録に失敗しました：'+e.message);}
 }
 
 // ─── EVENT LISTENERS ─────────────────────
 document.getElementById('admin-login-btn').addEventListener('click', checkAdminPw);
-document.getElementById('admin-pw-input').addEventListener('keydown', e => { if (e.key === 'Enter') checkAdminPw(); });
+document.getElementById('admin-pw-input').addEventListener('keydown', e=>{if(e.key==='Enter')checkAdminPw();});
 document.getElementById('logout-btn').addEventListener('click', adminLogout);
 document.getElementById('export-btn').addEventListener('click', exportData);
 document.getElementById('import-file').addEventListener('change', importJSON);
@@ -1026,7 +1174,7 @@ document.getElementById('modal-save-btn').addEventListener('click', saveNewIngre
   await loadSharedDB();
   const customTags = await loadCustomTags();
   renderTags(customTags);
-  addIngredientRow();
+  addIngredientRow('a');
   addStepRow();
   showPage('create');
 })();
