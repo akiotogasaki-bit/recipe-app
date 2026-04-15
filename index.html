@@ -1164,54 +1164,84 @@ function importCSV(e) {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = ev => {
-    const lines = ev.target.result.split(/\r?\n/).filter(l=>l.trim());
+    const lines = ev.target.result.split(/\r?\n/).filter(l => l.trim());
     csvParsed = [];
     for (const line of lines) {
-      const cols=[]; let cur='',inQ=false;
-      for (let ci=0;ci<line.length;ci++) {
-        const ch=line[ci];
-        if(ch==='"'){inQ=!inQ;}
-        else if(ch===','&&!inQ){cols.push(cur.trim());cur='';}
-        else{cur+=ch;}
+      const cols = []; let cur = '', inQ = false;
+      for (let ci = 0; ci < line.length; ci++) {
+        const ch = line[ci];
+        if (ch === '"') { inQ = !inQ; }
+        else if (ch === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+        else { cur += ch; }
       }
       cols.push(cur.trim());
-      const name=cols[0]?cols[0].replace(/^"|"$/g,'').trim():'';
-      const raw=cols[3]?cols[3].replace(/^"|"$/g,'').trim():'';
-      if(!name||!raw||raw.includes('#')) continue;
-      const p=parseFloat(raw);
-      if(isNaN(p)||p<=0) continue;
-      csvParsed.push({name, price100:Math.round(p*100*10)/10});
+
+      const name       = cols[0] ? cols[0].replace(/^"|"$/g,'').trim() : '';
+      const delivPrice = parseFloat(cols[1]);  // B列：仕入れ価格
+      const delivUnit  = cols[2] ? cols[2].replace(/^"|"$/g,'').trim() : ''; // C列：単位
+      const delivQty   = parseFloat(cols[3]);  // D列：入り数
+
+      if (!name || isNaN(delivPrice) || isNaN(delivQty) || delivQty <= 0) continue;
+      if (cols[1] && cols[1].includes('#')) continue;
+
+      // レシピ単位を自動判定
+      let recipeUnit = 'g';
+      const u = delivUnit.toLowerCase();
+      if (u === 'c/s') recipeUnit = '個';
+      else if (u === '本') recipeUnit = 'g';
+      else if (u.includes('k')) recipeUnit = 'g';
+      else if (u === 'p') recipeUnit = 'g';
+
+      const unitPrice = delivPrice / delivQty;
+
+      csvParsed.push({ name, delivUnit, delivQty, delivPrice, recipeUnit, unitPrice });
     }
-    if(!csvParsed.length){alert('取り込める食材が見つかりませんでした。');e.target.value='';return;}
-    const preview=csvParsed.slice(0,10);
-    document.getElementById('csv-preview-table').innerHTML=
-      '<thead><tr><th>食材名</th><th>100gあたり（円）</th></tr></thead>' +
-      '<tbody>'+preview.map(i=>'<tr><td>'+i.name+'</td><td>'+i.price100+'円</td></tr>').join('')+'</tbody>';
-    const existing=csvParsed.filter(i=>ingDB.find(d=>d.name===i.name)).length;
-    document.getElementById('csv-summary').innerHTML=
-      '合計 <strong>'+csvParsed.length+'件</strong>（新規：<strong>'+(csvParsed.length-existing)+'件</strong>、更新：<strong>'+existing+'件</strong>）';
-    document.getElementById('csv-preview').style.display='block';
-    e.target.value='';
+
+    if (!csvParsed.length) {
+      alert('取り込める食材が見つかりませんでした。\nファイルの形式と列の順番を確認してください。');
+      e.target.value = ''; return;
+    }
+
+    const preview = csvParsed.slice(0, 10);
+    document.getElementById('csv-preview-table').innerHTML =
+      '<thead><tr><th>食材名</th><th>納品単位</th><th>入り数</th><th>仕入れ価格</th><th>レシピ単位</th><th>単価</th></tr></thead>' +
+      '<tbody>' + preview.map(i =>
+        '<tr><td>' + i.name + '</td><td>' + i.delivUnit + '</td><td>' + i.delivQty +
+        '</td><td>' + i.delivPrice + '円</td><td>' + i.recipeUnit +
+        '</td><td>' + i.unitPrice.toFixed(2) + '円/' + i.recipeUnit + '</td></tr>'
+      ).join('') + '</tbody>';
+
+    const existing = csvParsed.filter(i => ingDB.find(d => d.name === i.name)).length;
+    const newCount = csvParsed.length - existing;
+    document.getElementById('csv-summary').innerHTML =
+      '合計 <strong>' + csvParsed.length + '件</strong>（新規：<strong>' + newCount + '件</strong>、更新：<strong>' + existing + '件</strong>）';
+    document.getElementById('csv-preview').style.display = 'block';
+    e.target.value = '';
   };
-  reader.readAsText(file,'UTF-8');
+  reader.readAsText(file, 'UTF-8');
 }
 
 function cancelCSV(){csvParsed=[];document.getElementById('csv-preview').style.display='none';}
 
-async function confirmCSV(){
-  if(!csvParsed.length) return;
+async function confirmCSV() {
+  if (!csvParsed.length) return;
   setSyncState('loading');
   try {
-    csvParsed.forEach(item=>{
-      const ex=ingDB.find(i=>i.name===item.name);
-      if(ex){ex.price100=item.price100;}
-      else{ingDB.push({id:Date.now()+Math.random(),name:item.name,unit:'g',price100:item.price100});}
+    csvParsed.forEach(item => {
+      const ex = ingDB.find(i => i.name === item.name);
+      if (ex) {
+        ex.delivUnit = item.delivUnit; ex.delivQty = item.delivQty;
+        ex.delivPrice = item.delivPrice; ex.recipeUnit = item.recipeUnit;
+        ex.unitPrice = item.unitPrice;
+      } else {
+        ingDB.push({id: Date.now() + Math.random(), ...item});
+      }
     });
-    await gasPost({action:'saveDB',data:ingDB});
+    await gasPost({action:'saveDB', data: ingDB});
     setSyncState('ok');
-    const count=csvParsed.length; csvParsed=[]; cancelCSV();
-    alert(count+'件の食材を登録しました');
-  } catch(e){setSyncState('err');alert('登録に失敗しました：'+e.message);}
+    const count = csvParsed.length; csvParsed = []; cancelCSV();
+    alert(count + '件の食材を登録しました\n※レシピ単位は食材DBから個別に変更できます');
+  } catch(e) { setSyncState('err'); alert('登録に失敗しました：' + e.message); }
 }
 
 // ─── EVENT LISTENERS ─────────────────────
