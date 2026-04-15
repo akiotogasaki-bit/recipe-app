@@ -590,6 +590,7 @@ function addStepRow(text, steamer) {
           '</select>' +
         '</div>' +
         '<div><label>温度（℃）</label><input type="number" id="steamer-temp-' + id + '" placeholder="例：180" value="' + (steamer&&steamer.temp?steamer.temp:'') + '"></div>' +
+        '<div><label>湿度（%）</label><input type="number" id="steamer-hum-' + id + '" placeholder="例：50" min="0" max="100" value="' + (steamer&&steamer.hum?steamer.hum:'') + '"></div>' +
         '<div><label>時間（分）</label><input type="number" id="steamer-time-' + id + '" placeholder="例：15" value="' + (steamer&&steamer.time?steamer.time:'') + '"></div>' +
       '</div>' +
     '</div>';
@@ -636,7 +637,8 @@ async function saveRecipe() {
     const mode = document.getElementById('steamer-mode-' + rid) ? document.getElementById('steamer-mode-' + rid).value : '';
     const temp = document.getElementById('steamer-temp-' + rid) ? document.getElementById('steamer-temp-' + rid).value : '';
     const time = document.getElementById('steamer-time-' + rid) ? document.getElementById('steamer-time-' + rid).value : '';
-    const steamer = (mode || temp || time) ? {mode, temp, time} : null;
+    const hum = document.getElementById('steamer-hum-' + rid) ? document.getElementById('steamer-hum-' + rid).value : '';
+    const steamer = (mode || temp || hum || time) ? {mode, temp, hum, time} : null;
     if (text) steps.push({text, photo, steamer});
   });
 
@@ -808,6 +810,7 @@ async function viewRecipe(id) {
         html += '<div class="rv-steamer">' +
           (s.steamer.mode ? '<span>♨ ' + s.steamer.mode + '</span>' : '') +
           (s.steamer.temp ? '<span>🌡 ' + s.steamer.temp + '℃</span>' : '') +
+          (s.steamer.hum  ? '<span>💧 ' + s.steamer.hum  + '%</span>' : '') +
           (s.steamer.time ? '<span>⏱ ' + s.steamer.time + '分</span>' : '') +
           '</div>';
       }
