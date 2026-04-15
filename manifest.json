@@ -1,0 +1,22 @@
+{
+  "name": "お江戸弁当 レシピ管理",
+  "short_name": "レシピ管理",
+  "description": "お江戸弁当のレシピ・食材管理アプリ",
+  "start_url": "/recipe-app/",
+  "display": "standalone",
+  "background_color": "#2A1040",
+  "theme_color": "#2A1040",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
