@@ -946,13 +946,7 @@ function editCurrentRecipe() {
 } else {
   addStepRow();
 }
-    if (s.steamer && s.steamer.prevDay) {
-      setTimeout(() => {
-        const el = document.getElementById('prev-day-' + stepCount);
-        if (el) { el.dataset.on = '1'; el.classList.add('active'); }
-      }, 0);
-    }
-
+    
   recalcCost();
 
   // バナー表示
