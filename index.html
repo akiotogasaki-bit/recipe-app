@@ -932,7 +932,20 @@ function editCurrentRecipe() {
   // 工程クリア
   document.getElementById('steps-list').innerHTML = '';
   stepCount = 0;
-  (r.steps||[]).forEach(s => addStepRow(s.text, s.steamer));
+  if (r.steps && r.steps.length) {
+  r.steps.forEach(step => {
+    addStepRow(step.text, step.steamer);
+    const currentId = stepCount;
+    if (step.steamer && step.steamer.prevDay) {
+      setTimeout(() => {
+        const el = document.getElementById('prev-day-' + currentId);
+        if (el) { el.dataset.on = '1'; el.classList.add('active'); }
+      }, 50);
+    }
+  });
+} else {
+  addStepRow();
+}
     if (s.steamer && s.steamer.prevDay) {
       setTimeout(() => {
         const el = document.getElementById('prev-day-' + stepCount);
