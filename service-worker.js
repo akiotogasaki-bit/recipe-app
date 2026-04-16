@@ -1,4 +1,4 @@
-const CACHE_NAME = 'oedo-recipe-v1';
+const CACHE_NAME = 'oedo-recipe-v2';
 const CACHE_FILES = [
   '/recipe-app/',
   '/recipe-app/index.html',
