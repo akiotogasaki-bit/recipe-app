@@ -53,7 +53,10 @@ textarea{resize:vertical;min-height:70px;line-height:1.7;}
 .ing-group-badge.b{background:#2196F3;}
 .ing-group-badge.c{background:#4CAF50;}
 .ing-group-label{font-size:0.8rem;font-weight:700;color:var(--ink2);}
-.ing-row{display:grid;grid-template-columns:2fr 1fr auto;gap:8px;align-items:center;margin-bottom:8px;padding:10px 12px;background:white;border-radius:8px;border:1px solid var(--border);}
+.ing-row-wrap{background:white;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden;}
+.ing-row-wrap .ing-row{border:none;border-radius:0;margin-bottom:0;background:transparent;}
+.ing-memo{display:block;width:100%;padding:7px 12px;border:none;border-top:1px solid var(--bg);border-radius:0;font-size:14px;color:var(--ink2);background:#FAFAFA;}
+.ing-memo:focus{background:white;border-top-color:var(--accent);outline:none;}
 .ing-name-wrap{position:relative;}
 .ing-suggestions{position:absolute;top:100%;left:0;right:0;background:white;border:1px solid var(--border);border-radius:8px;z-index:50;max-height:160px;overflow-y:auto;box-shadow:0 4px 12px var(--shadow);display:none;}
 .ing-suggestions.show{display:block;}
@@ -527,12 +530,17 @@ function addIngredientRow(group, name, amount, note) {
   div.className = 'ing-row';
   div.id = 'ing-row-' + id;
   div.innerHTML =
-    '<div class="ing-name-wrap">' +
-      '<input type="text" placeholder="食材名" value="' + name + '" id="ing-name-' + id + '" oninput="onIngNameInput(\'' + id + '\')" autocomplete="off">' +
-      '<div class="ing-suggestions" id="ing-sug-' + id + '"></div>' +
-    '</div>' +
-    '<input type="number" placeholder="量(g)" value="' + amount + '" id="ing-amount-' + id + '" oninput="recalcCost()">' +
-    '<button class="btn-sm danger" onclick="removeIngRow(\'' + id + '\')">✕</button>';
+    '<div class="ing-row-wrap">' +
+      '<div class="ing-row">' +
+        '<div class="ing-name-wrap">' +
+          '<input type="text" placeholder="食材名" value="' + name + '" id="ing-name-' + id + '" oninput="onIngNameInput(\'' + id + '\')" autocomplete="off">' +
+          '<div class="ing-suggestions" id="ing-sug-' + id + '"></div>' +
+        '</div>' +
+        '<input type="number" placeholder="量(g)" value="' + amount + '" id="ing-amount-' + id + '" oninput="recalcCost()">' +
+        '<button class="btn-sm danger" onclick="removeIngRow(\'' + id + '\')">✕</button>' +
+      '</div>' +
+      '<input type="text" placeholder="メモ（例：千切り、下味をつける）" value="' + note + '" id="ing-note-' + id + '" class="ing-memo">' +
+    '</div>';
   document.getElementById('ing-list-' + group).appendChild(div);
   recalcCost();
 }
@@ -837,7 +845,10 @@ async function viewRecipe(id) {
         html += '<div class="rv-ing-group">' +
           '<div class="rv-ing-group-title"><div class="rv-ing-badge ' + g.cls + '">' + g.key.toUpperCase() + '</div>' + g.label + '</div>';
         ings.forEach(i => {
-          html += '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--bg);font-size:.85rem;"><span>' + i.name + '</span><span style="color:var(--ink2)">' + i.amount + 'g</span></div>';
+        html += '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--bg);font-size:.85rem;flex-wrap:wrap;gap:2px;">' +
+          '<span>' + i.name + '</span>' +
+          '<span style="color:var(--ink2)">' + i.amount + 'g' + (i.note ? '　<span style="font-size:0.75rem;color:#888;">'+i.note+'</span>' : '') + '</span>' +
+          '</div>';
         });
         html += '</div>';
       });
@@ -997,7 +1008,7 @@ function calcPrep() {
       const item = ingDB.find(i => i.name === ing.name);
       const cost = (item && ing.amount) ? Math.round((item.unitPrice||0)*parseFloat(ing.amount)*ratio) : null;
       if (cost) totalCost += cost;
-      groupsHTML += '<tr><td><strong>' + ing.name + '</strong></td><td>' + scaled + 'g</td><td>' + (cost!=null?cost+'円':'—') + '</td></tr>';
+      groupsHTML += '<tr><td><strong>' + ing.name + '</strong>' + (ing.note ? '<br><span style="font-size:0.72rem;color:#888;">'+ing.note+'</span>' : '') + '</td><td>' + scaled + 'g</td><td>' + (cost!=null?cost+'円':'—') + '</td></tr>';
     });
     groupsHTML += '</tbody></table></div>';
   });
