@@ -79,8 +79,9 @@ input[type=file]{display:none;}
 .steamer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:8px;align-items:end;}
 .steamer-grid label{margin-top:0;font-size:0.7rem;color:#3A4A8F;}
 .steamer-grid input,.steamer-grid select{font-size:14px;padding:7px 10px;border-color:#C4D0F4;}
-.steamer-toggle{display:flex;align-items:center;gap:6px;margin-bottom:8px;cursor:pointer;font-size:0.78rem;color:#3A4A8F;font-weight:500;}
-.steamer-toggle input[type=checkbox]{width:auto;accent-color:var(--accent);}
+.prev-day-toggle{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border:1px solid var(--border);border-radius:20px;font-size:0.78rem;cursor:pointer;color:var(--ink2);background:white;transition:all .15s;margin-bottom:10px;user-select:none;}
+.prev-day-toggle.active{background:#E8F5EC;border-color:#3A6B45;color:#3A6B45;font-weight:700;}
+.rv-prev-day{display:inline-flex;align-items:center;gap:6px;background:#E8F5EC;border:1px solid #3A6B45;border-radius:8px;padding:4px 12px;font-size:0.78rem;color:#3A6B45;font-weight:700;margin-top:6px;}
 
 .cost-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-top:12px;}
 .cost-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:4px;}
@@ -618,7 +619,9 @@ function addStepRow(text, steamer) {
       '<input type="file" accept="image/*" id="step-photo-' + id + '" onchange="previewPhoto(' + id + ')">' +
       '<img class="step-photo-preview" id="step-img-' + id + '">' +
     '</div>' +
-    '<div class="steamer-box">' +
+    '<div class="prev-day-toggle" id="prev-day-' + id + '" onclick="togglePrevDay(' + id + ')" data-on="' + (steamer&&steamer.prevDay?'1':'0') + '">' +
+      '<span class="prev-day-icon">📦</span> 前日仕込みOK' +
+    '</div>' +
       '<div class="steamer-title">スチコン設定</div>' +
       '<div class="steamer-grid">' +
         '<div><label>モード</label>' +
@@ -643,6 +646,14 @@ function removeStepRow(id) {
   if (el) el.remove();
   renumberSteps();
 }
+function togglePrevDay(id) {
+  const el = document.getElementById('prev-day-' + id);
+  if (!el) return;
+  const isOn = el.dataset.on === '1';
+  el.dataset.on = isOn ? '0' : '1';
+  el.classList.toggle('active', !isOn);
+}
+
 function renumberSteps() {
   document.querySelectorAll('.step-num').forEach((el, i) => { el.textContent = i + 1; });
 }
@@ -678,7 +689,8 @@ async function saveRecipe() {
     const temp = document.getElementById('steamer-temp-' + rid) ? document.getElementById('steamer-temp-' + rid).value : '';
     const time = document.getElementById('steamer-time-' + rid) ? document.getElementById('steamer-time-' + rid).value : '';
     const hum = document.getElementById('steamer-hum-' + rid) ? document.getElementById('steamer-hum-' + rid).value : '';
-    const steamer = (mode || temp || hum || time) ? {mode, temp, hum, time} : null;
+    const prevDay = document.getElementById('prev-day-' + rid) ? document.getElementById('prev-day-' + rid).dataset.on === '1' : false;
+    const steamer = (mode || temp || hum || time || prevDay) ? {mode, temp, hum, time, prevDay} : null;
     if (text) steps.push({text, photo, steamer});
   });
 
@@ -910,7 +922,12 @@ function editCurrentRecipe() {
   document.getElementById('steps-list').innerHTML = '';
   stepCount = 0;
   (r.steps||[]).forEach(s => addStepRow(s.text, s.steamer));
-  if (!r.steps || !r.steps.length) addStepRow();
+    if (s.steamer && s.steamer.prevDay) {
+      setTimeout(() => {
+        const el = document.getElementById('prev-day-' + stepCount);
+        if (el) { el.dataset.on = '1'; el.classList.add('active'); }
+      }, 0);
+    }
 
   recalcCost();
 
