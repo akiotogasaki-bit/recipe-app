@@ -4,8 +4,8 @@
   "description": "お江戸弁当のレシピ・食材管理アプリ",
   "start_url": "/recipe-app/",
   "display": "standalone",
-  "background_color": "#2A1040",
-  "theme_color": "#2A1040",
+  "background_color": "#E67E22",
+  "theme_color": "#E67E22",
   "orientation": "portrait",
   "icons": [
     {
