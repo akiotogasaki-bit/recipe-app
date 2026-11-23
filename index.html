@@ -390,6 +390,9 @@ input[type=file]{display:none;}
 </div>
 
 <script>
+// v5 (2026-11-24) 読み込みを速く：①GASへの問い合わせを同時に投げる（順番待ちをやめた）
+//   ②前回取れたデータを端末(localStorage)に残し、開いた瞬間に表示→裏で最新に差し替える。
+//   食材DBは最新が届くまで保存させない（古い控えでサーバーを上書きしないため）。
 // ─── STATE ───────────────────────────────
 let ingDB = [];
 let ingRowCounts = {a:0, b:0, c:0};
@@ -411,10 +414,27 @@ function setSyncState(s) { dot.className = 'sync-dot ' + s; }
 
 // ─── GAS API ─────────────────────────────
 async function gasGet(action) {
-  const res = await fetch(GAS_URL + '?action=' + action);
+  const res = await fetch(GAS_URL + '?action=' + action + '&_cb=' + Date.now());
   return await res.json();
 }
+
+// ─── 端末の控え（前回のデータ）───────────
+const CACHE_PREFIX = 'oedoRecipe.v1.';
+function cacheRead(key) {
+  try { const v = localStorage.getItem(CACHE_PREFIX + key); return v ? JSON.parse(v) : null; } catch { return null; }
+}
+function cacheWrite(key, val) {
+  try { localStorage.setItem(CACHE_PREFIX + key, JSON.stringify(val)); } catch {}
+}
+let dbFresh = false;        // サーバーの最新の食材DBが届いたか
+let recipesMem = null;      // この画面で最後に取れたレシピ一覧
+let tagsMem = null;         // この画面で最後に取れたタグ
+
 async function gasPost(body) {
+  if (body && body.action === 'saveDB' && !dbFresh) {
+    alert('最新の食材DBを読み込み中です。数秒おいてからもう一度保存してください。');
+    throw new Error('db not fresh');
+  }
   // POSTで送信（大きいデータ対応）
   try {
     const res = await fetch(GAS_URL, {
@@ -433,12 +453,18 @@ async function gasPost(body) {
 
 // ─── DB ──────────────────────────────────
 async function loadSharedDB() {
+  const cached = cacheRead('db');
+  if (cached && cached.length) ingDB = cached;   // まず前回の控えで使えるようにする
   try {
     const data = await gasGet('getDB');
     ingDB = (data && data.length) ? data : getDefaultDB();
+    dbFresh = true;
     if (!data || !data.length) await gasPost({action:'saveDB', data: ingDB});
+    cacheWrite('db', ingDB);
     setSyncState('ok');
-  } catch { ingDB = getDefaultDB(); setSyncState('err'); }
+    const dbPage = document.getElementById('page-db');
+    if (dbPage && dbPage.classList.contains('active')) renderDB();
+  } catch { if (!ingDB.length) ingDB = getDefaultDB(); setSyncState('err'); }
 }
 
 // ─── DB ──────────────────────────────────
@@ -458,12 +484,26 @@ function getDefaultDB() {
 }
 
 async function loadSharedRecipes() {
-  try { return await gasGet('getRecipes') || []; } catch { return []; }
+  try {
+    const r = await gasGet('getRecipes') || [];
+    recipesMem = r; cacheWrite('recipes', r);
+    return r;
+  } catch { return recipesMem || cacheRead('recipes') || []; }
 }
 async function loadCustomTags() {
-  try { return await gasGet('getTags') || []; } catch { return []; }
+  try {
+    const t = await gasGet('getTags') || [];
+    tagsMem = t; cacheWrite('tags', t);
+    return t;
+  } catch { return tagsMem || cacheRead('tags') || []; }
 }
-async function saveCustomTags(t) { try { await gasPost({action:'saveTags', data: t}); } catch {} }
+// 手元の控え（この画面で取れた物→端末の控え）。無ければ null
+function cachedRecipes() { return recipesMem || cacheRead('recipes'); }
+function cachedTags()    { return tagsMem    || cacheRead('tags'); }
+async function saveCustomTags(t) {
+  tagsMem = t; cacheWrite('tags', t);
+  try { await gasPost({action:'saveTags', data: t}); } catch {}
+}
 
 // ─── NAV ─────────────────────────────────
 function showPage(id) {
@@ -727,6 +767,7 @@ async function saveRecipe() {
     const res = await gasPost({action:'saveRecipe', data: recipe});
     if (res && res.error) throw new Error(res.error);
     setSyncState('ok');
+    loadSharedRecipes();   // 裏で控えを最新にしておく（一覧を開いた時に古い物が出ないように）
     alert(editingRecipeId ? '「' + name + '」を更新しました！' : '「' + name + '」を全員に共有しました！');
     cancelEdit();
   } catch(err) {
@@ -763,13 +804,24 @@ function resetCreate() {
 // ─── RECIPE LIST ─────────────────────────
 async function renderRecipeList() {
   const el = document.getElementById('recipe-list');
-  el.innerHTML = '<div class="loading-wrap"><span class="spinner"></span>読み込み中…</div>';
+  const cr = cachedRecipes(), ct = cachedTags();
+  if (cr) drawRecipeList(cr, ct || []);   // 控えがあれば即表示
+  else el.innerHTML = '<div class="loading-wrap"><span class="spinner"></span>読み込み中…</div>';
   setSyncState('loading');
   try {
-    const recipes = await loadSharedRecipes();
-    const customTags = await loadCustomTags();
-    const allTags = DEFAULT_TAGS.concat(customTags);
+    const [recipes, customTags] = await Promise.all([loadSharedRecipes(), loadCustomTags()]);
     setSyncState('ok');
+    drawRecipeList(recipes, customTags);
+  } catch {
+    setSyncState('err');
+    if (!cr) el.innerHTML = '<div class="empty-state">読み込みに失敗しました</div>';
+  }
+}
+
+function drawRecipeList(recipes, customTags) {
+  const el = document.getElementById('recipe-list');
+  {
+    const allTags = DEFAULT_TAGS.concat(customTags);
     const filterRow = document.getElementById('filter-tag-row');
     filterRow.innerHTML =
       '<span class="filter-tag ' + (activeFilter === null ? 'active' : '') + '" onclick="setFilter(null)">すべて</span>' +
@@ -794,27 +846,30 @@ async function renderRecipeList() {
           '<button class="btn-sm danger" onclick="deleteRecipe(' + r.id + ')">削除</button>' +
         '</div>' +
       '</div>').join('');
-  } catch {
-    setSyncState('err');
-    el.innerHTML = '<div class="empty-state">読み込みに失敗しました</div>';
   }
 }
 
-function setFilter(val) { activeFilter = val; renderRecipeList(); }
+// 絞り込みは手元のデータで描き直す（毎回GASへ取りに行かない）
+function setFilter(val) {
+  activeFilter = val;
+  const cr = cachedRecipes();
+  if (cr) drawRecipeList(cr, cachedTags() || []); else renderRecipeList();
+}
 
 async function deleteRecipe(id) {
   if (!confirm('このレシピを削除しますか？\n全員の画面から削除されます。')) return;
   setSyncState('loading');
   try {
     await gasPost({action:'deleteRecipe', id: id});
+    if (recipesMem) { recipesMem = recipesMem.filter(r => r.id !== id); cacheWrite('recipes', recipesMem); }
     setSyncState('ok');
     renderRecipeList();
   } catch { setSyncState('err'); }
 }
 
 async function viewRecipe(id) {
-  const recipes = await loadSharedRecipes();
-  const r = recipes.find(x => x.id === id);
+  let r = (cachedRecipes() || []).find(x => x.id === id);
+  if (!r) r = (await loadSharedRecipes()).find(x => x.id === id);
   if (!r) return;
   currentViewRecipe = r;
   const sv = r.servings || null;
@@ -961,14 +1016,24 @@ function editCurrentRecipe() {
 
 // ─── PREP ────────────────────────────────
 async function initPrepPage() {
-  prepRecipes = await loadSharedRecipes();
-  const customTags = await loadCustomTags();
+  const cr = cachedRecipes();
+  if (cr) drawPrepPage(cr, cachedTags() || []);   // 控えがあれば即表示
+  const [recipes, customTags] = await Promise.all([loadSharedRecipes(), loadCustomTags()]);
+  // 最新が届いた時に、計算途中の人数や結果を消さないよう選択肢と絞り込みだけ差し替える
+  drawPrepPage(recipes, customTags, !!cr);
+}
+
+function drawPrepPage(recipes, customTags, keepInput) {
+  prepRecipes = recipes;
   const allTags = DEFAULT_TAGS.concat(customTags);
   const filterRow = document.getElementById('prep-filter-row');
   filterRow.innerHTML =
     '<span class="filter-tag ' + (prepFilter===null?'active':'') + '" onclick="setPrepFilter(null)">すべて</span>' +
     allTags.map(t => '<span class="filter-tag ' + (prepFilter===t?'active':'') + '" onclick="setPrepFilter(\'' + t + '\')">' + t + '</span>').join('');
+  const sel = document.getElementById('prep-recipe-select');
+  const keep = sel ? sel.value : '';
   updatePrepSelect();
+  if (keepInput) { if (sel && keep && [...sel.options].some(o => o.value === keep)) sel.value = keep; return; }
   document.getElementById('prep-servings').value = '';
   document.getElementById('prep-result').style.display = 'none';
 }
@@ -1178,8 +1243,7 @@ function changePassword() {
 async function exportData() {
   setSyncState('loading');
   try {
-    const recipes = await loadSharedRecipes();
-    const customTags = await loadCustomTags();
+    const [recipes, customTags] = await Promise.all([loadSharedRecipes(), loadCustomTags()]);
     const payload = {exportedAt:new Date().toLocaleString('ja-JP'), recipes, db:ingDB, customTags};
     const blob = new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
     const url = URL.createObjectURL(blob);
@@ -1203,7 +1267,7 @@ function importJSON(e) {
       for (const r of data.recipes) await gasPost({action:'saveRecipe', data:r});
       await gasPost({action:'saveDB', data:data.db});
       if (data.customTags) await gasPost({action:'saveTags', data:data.customTags});
-      ingDB = data.db; setSyncState('ok');
+      ingDB = data.db; cacheWrite('db', ingDB); loadSharedRecipes(); setSyncState('ok');
       alert('復元しました\nレシピ：'+data.recipes.length+'件 / 食材：'+data.db.length+'件');
     } catch { setSyncState('err'); alert('復元に失敗しました。'); }
     e.target.value='';
@@ -1319,12 +1383,14 @@ if ('serviceWorker' in navigator) {
 // ─── INIT ────────────────────────────────
 (async () => {
   setSyncState('loading');
-  await loadSharedDB();
-  const customTags = await loadCustomTags();
-  renderTags(customTags);
+  // 控えがあれば画面を先に出す
+  renderTags(cachedTags() || []);
   addIngredientRow('a');
   addStepRow();
   showPage('create');
+  // 3本を同時に取りに行く（レシピは一覧・仕込みタブを開いた時すぐ出すための先読み）
+  const [, customTags] = await Promise.all([loadSharedDB(), loadCustomTags(), loadSharedRecipes()]);
+  renderTags(customTags);
 })();
 </script>
 </body>
