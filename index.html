@@ -393,6 +393,12 @@ input[type=file]{display:none;}
 // v5 (2026-11-24) 読み込みを速く：①GASへの問い合わせを同時に投げる（順番待ちをやめた）
 //   ②前回取れたデータを端末(localStorage)に残し、開いた瞬間に表示→裏で最新に差し替える。
 //   食材DBは最新が届くまで保存させない（古い控えでサーバーを上書きしないため）。
+// v5.1 (2026-11-24) 食材DBに同じ id の行が最大6重に入っていた（161行中110行がコピー）。
+//   読み込む時と保存する時に「中身が完全に同じ行」を1つに絞る（先に出た行を残す）。
+//   さらに id が小数（4/15のCSV取込で Date.now()+Math.random()）や他の食材と同じ番号の物は
+//   整数の番号に振り直す（きゅうりと三温糖が同じ番号で、片方を消すと両方消えていた）。
+//   レシピは食材を名前で引くので、番号を振り直しても影響しない。
+//   編集の保存が parseInt(editId) で小数の番号を引けず、黙って反映されていなかったのも直した。
 // ─── STATE ───────────────────────────────
 let ingDB = [];
 let ingRowCounts = {a:0, b:0, c:0};
@@ -426,6 +432,24 @@ function cacheRead(key) {
 function cacheWrite(key, val) {
   try { localStorage.setItem(CACHE_PREFIX + key, JSON.stringify(val)); } catch {}
 }
+// 中身が同じ食材を1つに絞り、番号を重ならない整数にそろえる（v5.1）
+function dedupeDB(arr) {
+  const seen = new Set();
+  const out = (arr || []).filter(i => {
+    if (!i) return false;
+    const k = JSON.stringify(Object.keys(i).sort().map(key => [key, i[key]]));
+    if (seen.has(k)) return false;
+    seen.add(k); return true;
+  });
+  const used = new Set();
+  let next = Math.max(0, ...out.map(i => Number.isInteger(i.id) ? i.id : 0)) + 1;
+  return out.map(i => {
+    if (Number.isInteger(i.id) && !used.has(i.id)) { used.add(i.id); return i; }
+    while (used.has(next)) next++;
+    used.add(next);
+    return Object.assign({}, i, {id: next++});
+  });
+}
 let dbFresh = false;        // サーバーの最新の食材DBが届いたか
 let recipesMem = null;      // この画面で最後に取れたレシピ一覧
 let tagsMem = null;         // この画面で最後に取れたタグ
@@ -434,6 +458,11 @@ async function gasPost(body) {
   if (body && body.action === 'saveDB' && !dbFresh) {
     alert('最新の食材DBを読み込み中です。数秒おいてからもう一度保存してください。');
     throw new Error('db not fresh');
+  }
+  if (body && body.action === 'saveDB') {
+    const clean = dedupeDB(body.data);
+    if (body.data === ingDB) ingDB = clean;   // 画面の手元も同じ番号にそろえる
+    body = Object.assign({}, body, {data: clean});
   }
   // POSTで送信（大きいデータ対応）
   try {
@@ -454,10 +483,10 @@ async function gasPost(body) {
 // ─── DB ──────────────────────────────────
 async function loadSharedDB() {
   const cached = cacheRead('db');
-  if (cached && cached.length) ingDB = cached;   // まず前回の控えで使えるようにする
+  if (cached && cached.length) ingDB = dedupeDB(cached);   // まず前回の控えで使えるようにする
   try {
     const data = await gasGet('getDB');
-    ingDB = (data && data.length) ? data : getDefaultDB();
+    ingDB = (data && data.length) ? dedupeDB(data) : getDefaultDB();
     dbFresh = true;
     if (!data || !data.length) await gasPost({action:'saveDB', data: ingDB});
     cacheWrite('db', ingDB);
@@ -1185,7 +1214,7 @@ async function saveNewIngredient() {
 
   if (editId) {
     // 編集モード
-    const item = ingDB.find(i => i.id === parseInt(editId));
+    const item = ingDB.find(i => String(i.id) === String(editId));
     if (item) {
       item.name = name; item.delivUnit = delivUnit; item.delivQty = delivQty;
       item.delivPrice = delivPrice; item.recipeUnit = recipeUnit; item.unitPrice = unitPrice;
